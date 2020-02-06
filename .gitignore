@@ -4,5 +4,3 @@
 *.log
 *.synctex.gz
 
-target/
-!Cargo.lock
