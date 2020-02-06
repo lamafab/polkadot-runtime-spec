@@ -8,3 +8,7 @@ edition = "2018"
 
 [dependencies]
 kusama-runtime = { git = "https://github.com/lamafab/polkadot", branch = "tagged", features = ["std"] }
+polkadot-primitives = { git = "https://github.com/lamafab/polkadot", branch = "tagged", features = ["std"] }
+sp-core = { git = "https://github.com/lamafab/substrate", branch = "tagged", features = ["std"] }
+sp-runtime = { git = "https://github.com/lamafab/substrate", branch = "tagged", features = ["std"] }
+tiny-bip39 = "0.7.0"

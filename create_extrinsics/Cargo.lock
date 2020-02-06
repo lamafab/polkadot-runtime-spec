@@ -402,6 +402,10 @@ name = "create_extrinsics"
 version = "0.1.0"
 dependencies = [
  "kusama-runtime",
+ "polkadot-primitives",
+ "sp-core",
+ "sp-runtime",
+ "tiny-bip39 0.7.0",
 ]
 
 [[package]]
@@ -2019,6 +2023,9 @@ name = "once_cell"
 version = "1.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1c601810575c99596d4afc46f78a678c80105117c379eb3650cf99b8a21ce5b"
+dependencies = [
+ "parking_lot 0.9.0",
+]
 
 [[package]]
 name = "opaque-debug"
@@ -3111,6 +3118,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c691c0e608126e00913e33f0ccf3727d5fc84573623b8d65b2df340b5201783"
 
 [[package]]
+name = "rustc-hash"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7540fc8b0c49f096ee9c961cda096467dce8084bec6bdca2fc83895fd9b28cb8"
+dependencies = [
+ "byteorder 1.3.2",
+]
+
+[[package]]
 name = "rustc-hex"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3572,7 +3588,7 @@ dependencies = [
  "sp-std",
  "sp-storage",
  "substrate-bip39",
- "tiny-bip39",
+ "tiny-bip39 0.6.2",
  "tiny-keccak",
  "twox-hash",
  "wasmi",
@@ -4048,6 +4064,21 @@ dependencies = [
  "once_cell 0.1.8",
  "pbkdf2",
  "rand 0.6.5",
+ "sha2",
+]
+
+[[package]]
+name = "tiny-bip39"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1cd1fb03fe8e07d17cd851a624a9fff74642a997b67fbd1ccd77533241640d92"
+dependencies = [
+ "failure",
+ "hmac",
+ "once_cell 1.3.1",
+ "pbkdf2",
+ "rand 0.7.3",
+ "rustc-hash",
  "sha2",
 ]
 
