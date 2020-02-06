@@ -24,7 +24,7 @@ fn test_create_extrinsic() {
     let function = Call::Balances(BalancesCall::transfer(to.into(), amount));
 
     let ext = UncheckedExtrinsic::new_unsigned(function);
-    //println!("EXT: {:?}", ext.encode());
+    println!("EXT: {:?}", ext.encode());
     println!("EXT: {:?}", ext);
 }
 
