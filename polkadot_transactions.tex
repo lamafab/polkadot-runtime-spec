@@ -1,0 +1,364 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{tabulary}
+
+\begin{document}
+\title{Polkadot Runtime Specification}
+\author{Web3 Foundation}
+\date{February 2020}
+\maketitle
+\section{Polkadot Transactions}
+
+\subsection{Attestations}
+\subsubsection{more\_attestations}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func more_attestations
+        (param $origin) (param $more))
+\end{verbatim}
+\subsubsection*{Description}
+Provide candidate receipts for parachains, in ascending order by id.
+
+\subsection{Claims}
+\subsubsection{deposit\_event}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func deposit_event 
+        (param $origin) (param $more))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Deposit one of this module's events by using the default implementation. 
+
+\subsubsection{claim}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func claim)
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 1'000'000
+\subsubsection*{Description}
+Make a claim.
+
+\subsubsection{mint\_claim}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func mint_claim
+        (param $origin) (param $who) (param $value) (param $vesting_schedule))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 30'000
+\subsubsection*{Description}
+Add a new claim, if you are root.
+
+\subsection{Crowdfund}
+\subsubsection{deposit\_event}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func deposit_event)
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Deposit one of this module's events by using the default implementation. 
+
+\subsubsection{create}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func create 
+        (param $origin) (param $cap) (param $first_slot)
+        (param $last_slot) (param $end))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 100'000
+\subsubsection*{Description}
+Create a new crowdfunding campaign for a parachain slot deposit for the current auction. 
+
+\subsubsection{contribute}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func contribute
+        (param $origin) (param $index) (param $value))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Contribute to a crowd sale. This will transfer some balance over to fund a parachain slot. It will be withdrawable in two instances: the parachain becomes retired; or the slot is.
+
+\subsubsection{fix\_deploy\_data}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func fix_deploy_data
+        (param $origin) (param $index) (param $code_hash)
+        (param $initial_head_data))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Set the deploy data of the funded parachain if not already set. Once set, this cannot be changed again.
+
+\begin{itemize}
+\item origin must be the fund owner.
+\item index is the fund index that origin owns and whose deploy data will be set.
+\item code\_hash is the hash of the parachain's Wasm validation function.
+\item initial\_head\_data is the parachain's initial head data.
+\end{itemize}
+
+\subsubsection{onboard}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func onboard
+        (param $origin) (param $index) (param $para_id))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Complete onboarding process for a winning parachain fund. This can be called once by any origin once a fund wins a slot and the fund has set its deploy data (using fix\_deploy\_data).
+
+\begin{itemize}
+\item index is the fund index that origin owns and whose deploy data will be set.
+\item para\_id is the parachain index that this fund won.
+\end{itemize}
+
+\subsubsection{begin\_retirement}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func begin_retirement
+        (param $origin) (param $index))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Note that a successful fund has lost its parachain slot, and place it into retirement.
+
+\subsubsection{withdraw}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func withdraw
+        (param $origin) (param $index))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Withdraw full balance of a contributor to an unsuccessful or off-boarded fund.
+
+\subsubsection{dissolve}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func dissolve
+        (param $origin) (param $index))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Remove a fund after either: it was unsuccessful and it timed out; or it was successful but it has been retired from its parachain slot. This places any deposits that were not withdrawn into the treasury.
+
+\subsection{Parachains}
+\subsubsection{set\_heads}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func set_heads
+        (param $origin) (param $heads) (return dispatch))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 1'000'000
+\subsubsection*{Description}
+Provide candidate receipts for parachains, in ascending order by id.
+
+\subsection{Registrar}
+\subsubsection{deposit\_event}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func deposit_event)
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None 
+\subsubsection*{Description}
+
+\subsubsection{register\_para}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func register_para
+        (param $origin) (param $id) (param $info)
+        (param $code) (param $initial_head_data)
+        (return dispatch))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 5'000'000 
+\subsubsection*{Description}
+Register a parachain with given code. Fails if given ID is already used.
+
+\subsubsection{deregister\_para}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func deregister_para
+        (param $origin) (param $id) (return dispatch))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 10'000 
+\subsubsection*{Description}
+Deregister a parachain with given id.
+
+\subsubsection{set\_thread\_count}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func set_thread_count
+        (param $origin) (param $count))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Reset the number of parathreads that can pay to be scheduled in a single block.
+\begin{itemize}
+\item count: The number of parathreads.
+\end{itemize}
+Must be called from Root origin.
+
+\subsubsection{select\_parathread}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func select_parathread
+        (param $origin) (param $id)
+        (param $collator) (param $head_hash))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Place a bid for a parathread to be progressed in the next block. This is a kind of special transaction that should be heavily prioritized in the transaction pool according to the `value`; only `ThreadCount` of them may be presented in any single block.
+
+\subsubsection{deregister\_parathread}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func deregister_parathread (param $origin))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Deregister a parathread and retrieve the deposit. Must be sent from a `Parachain` origin which is currently a parathread. Ensure that before calling this that any funds you want emptied from the parathread's account is moved out; after this it will be impossible to retrieve them (without governance intervention).
+
+\subsubsection{swap}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func swap (param $origin) (param $other))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+Swap a parachain with another parachain or parathread. The origin must be a `Parachain`. The swap will happen only if there is already an opposite swap pending. If there is not, the swap will be stored in the pending swaps map, ready for a later confirmatory swap.
+The `ParaId`s remain mapped to the same head data and code so external code can rely on `ParaId` to be a long-term identifier of a notional "parachain". However, their scheduling info (i.e. whether they're a parathread or parachain), auction information and the auction deposit are switched.
+
+\subsection{Slots}
+\subsubsection{deposit\_event}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func deposit_event)
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: None
+\subsubsection*{Description}
+
+\subsubsection{new\_auction}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func new\_auction
+        (param $origin) (param $duration) (param $lease_period_index))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 100'000
+\subsubsection*{Description}
+Create a new auction.
+
+This can only happen when there isn't already an auction in progress and may only be called by the root origin. Accepts the `duration` of this auction and the `lease\_period\_index` of the initial lease period of the four that are to be auctioned.
+
+\subsubsection{bid}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func bid 
+        (param $origin) (param $sub) (param $auction_index)
+        (param $first_slot) (param $last_slot) (param $amount))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 500'000
+\subsubsection*{Description}
+Make a new bid from an account (including a parachain account) for deploying a new parachain. Multiple simultaneous bids from the same bidder are allowed only as long as all active bids overlap each other (i.e. are mutually exclusive). Bids cannot be redacted.
+
+\begin{itemize}
+\item `sub` is the sub-bidder ID, allowing for multiple competing bids to be made by (and funded by) the same account.
+\item `auction\_index` is the index of the auction to bid on. Should just be the present value of `AuctionCounter`.
+\item `first\_slot` is the first lease period index of the range to bid on. This is the absolute lease period index value, not an auction-specific offset.
+\item `last\_slot` is the last lease period index of the range to bid on. This is the absolute lease period index value, not an auction-specific offset.
+\item `amount` is the amount to bid to be held as deposit for the parachain should the bid win. This amount is held throughout the range.
+\end{itemize}
+
+\subsubsection{bid\_renew}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func bid_renew
+        (param $origin) (param $auction_index) (param $first_slot)
+        (param $last_slot) (param $amount))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 500'000
+\subsubsection*{Description}
+Make a new bid from a parachain account for renewing that (pre-existing) parachain. The origin *must* be a parachain account. Multiple simultaneous bids from the same bidder are allowed only as long as all active bids overlap each other (i.e. are mutually exclusive). Bids cannot be redacted.
+
+\begin{itemize}
+\item `auction\_index` is the index of the auction to bid on. Should just be the present value of `AuctionCounter`.
+\item `first\_slot` is the first lease period index of the range to bid on. This is the absolute lease period index value, not an auction-specific offset.
+\item `last\_slot` is the last lease period index of the range to bid on. This is the absolute lease period index value, not an auction-specific offset.
+\item `amount` is the amount to bid to be held as deposit for the parachain should the bid win. This amount is held throughout the range.
+\end{itemize}
+
+\subsubsection{set\_offboarding}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func set_offboarding
+        (param $origin) (param $dest))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 1'000'000
+\subsubsection*{Description}
+Set the off-boarding information for a parachain. The origin *must* be a parachain account.
+
+\begin{itemize}
+\item `dest` is the destination account to receive the parachain's deposit.
+\end{itemize}
+
+\subsubsection{fix\_deploy\_data}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func fix_deploy_data
+        (param $origin) (param $sub) (param $para_id)
+        (param $code_hash) (param $initial_head_data))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 500'000
+\subsubsection*{Description}
+Set the deploy information for a successful bid to deploy a new parachain.
+
+\begin{itemize}
+\item `origin` must be the successful bidder account.
+\item `sub` is the sub-bidder ID of the bidder.
+\item `para\_id` is the parachain ID allotted to the winning bidder.
+\item `code\_hash` is the hash of the parachain's Wasm validation function.
+\item `initial\_head\_data` is the parachain's initial head data.
+\end{itemize}
+
+\subsubsection{elaborate\_deploy\_data}
+\subsubsection*{Prototype:}
+\begin{verbatim}
+    (func elaborate_deploy_data
+        (param $origin) (param $para_id) (param $code))
+\end{verbatim}
+\subsubsection*{Weight}
+Weight: 5'000'000
+\subsubsection*{Description}
+Note a new parachain's code. This must be called after `fix\_deploy\_data` and `code` must be the preimage of the `code\_hash` passed there for the same `para\_id`. This may be called before or after the beginning of the parachain's first lease period. If called before then the parachain will become active at the first block of its starting lease period. If after, then it will become active immediately after this call.
+
+\begin{itemize}
+\item `origin` is irrelevant.
+\item `para\_id` is the parachain ID whose code will be elaborated.
+\item `code` is the preimage of the registered `code\_hash` of `para\_id`.
+\end{itemize}
+
+\end{document}
