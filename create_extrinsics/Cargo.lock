@@ -401,7 +401,10 @@ dependencies = [
 name = "create_extrinsics"
 version = "0.1.0"
 dependencies = [
+ "frame-system",
  "kusama-runtime",
+ "pallet-transaction-payment",
+ "parity-scale-codec",
  "polkadot-primitives",
  "sp-core",
  "sp-runtime",

@@ -11,4 +11,7 @@ kusama-runtime = { git = "https://github.com/lamafab/polkadot", branch = "tagged
 polkadot-primitives = { git = "https://github.com/lamafab/polkadot", branch = "tagged", features = ["std"] }
 sp-core = { git = "https://github.com/lamafab/substrate", branch = "tagged", features = ["std"] }
 sp-runtime = { git = "https://github.com/lamafab/substrate", branch = "tagged", features = ["std"] }
+frame-system = { git = "https://github.com/lamafab/substrate", branch = "tagged", features = ["std"] }
 tiny-bip39 = "0.7.0"
+pallet-transaction-payment = { git = "https://github.com/lamafab/substrate", branch = "tagged", features = ["std"] }
+parity-scale-codec = "1.1.2"
