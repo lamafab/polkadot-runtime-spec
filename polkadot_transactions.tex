@@ -20,7 +20,7 @@
 \subsubsection*{Prototype:}
 \begin{verbatim}
     (func more_attestations
-        (param $origin) (param $more))
+        (param $origin) (param $more) (return dispatch))
 \end{verbatim}
 \subsubsection*{Description}
 Provide candidate receipts for parachains, in ascending order by id.
@@ -40,7 +40,8 @@ Deposit one of this module's events by using the default implementation.
 \subsubsection{claim}
 \subsubsection*{Prototype:}
 \begin{verbatim}
-    (func claim)
+    (func claim
+        (param $origin) (param $dest) (param $sig))
 \end{verbatim}
 \subsubsection*{Weight}
 Weight: 1'000'000
@@ -236,7 +237,8 @@ Place a bid for a parathread to be progressed in the next block. This is a kind 
 \subsubsection{deregister\_parathread}
 \subsubsection*{Prototype:}
 \begin{verbatim}
-    (func deregister_parathread (param $origin))
+    (func deregister_parathread
+        (param $origin))
 \end{verbatim}
 \subsubsection*{Weight}
 Weight: None
@@ -246,7 +248,8 @@ Deregister a parathread and retrieve the deposit. Must be sent from a Parachain 
 \subsubsection{swap}
 \subsubsection*{Prototype:}
 \begin{verbatim}
-    (func swap (param $origin) (param $other))
+    (func swap
+        (param $origin) (param $other))
 \end{verbatim}
 \subsubsection*{Weight}
 Weight: None
