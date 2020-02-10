@@ -17,35 +17,35 @@
 
 \begin{center}
   \begin{tabulary}{1.0\textwidth}{LLLL}
-    Module & Function & Weight & Description \\
-    Attestations & more\_attestations & None & Provide candidate receipts for parachains \\
+    \textbf{Module} & \textbf{Function} & \textbf{Weight} & \textbf{Description} \\
+    \hline
+    Attestations & more\_attestations & None & Provide candidate receipts \\
     Attestations & deposit\_event & None & Deposit one of this module's events \\
     Attestations & claim & 1'000'000 & Make a claim \\
     Attestations & mint\_claim & 30'000 & Add a new claim \\
     Crowdfund & deposit\_event & None & Deposit one of this modules's events \\
-    Crowdfund & create & 100'000 & Create a new campaign for a parachain slot deposit \\
+    Crowdfund & create & 100'000 & Create a new campaign  \\
     Crowdfund & contribute & None & Contribute to a crowd sale \\
-    Crowdfund & fix\_deploy\_data & None & Set the deploy data of the funded parachain \\
-    Crowdfund & onboard & None & Complete onboarding process for a winning parachain fund \\
-    Crowdfund & begin\_retirement & None & Retire a fund when it has lost it's parachain slot \\
-    Crowdfund & withdraw & None & Withdraw full balance of a contributor to an unsuccessful fund \\
+    Crowdfund & fix\_deploy\_data & None & Set the deploy data of funded parachain \\
+    Crowdfund & onboard & None & Complete onboarding process \\
+    Crowdfund & begin\_retirement & None & Retire a fund when it has lost its slot \\
+    Crowdfund & withdraw & None & Withdraw full balance \\
     Crowdfund & dissolve & None & Remove a fund \\
-    Parachains & set\_heads & 1'000'000 & Provide candidate receipts for parachains \\
+    Parachains & set\_heads & 1'000'000 & Provide candidate receipts \\
     Registrar & deposit\_event & None & Deposit one of this module's events \\
-    Registrar & register\_para & 5'000,000 & Register a parachain with given code \\
+    Registrar & register\_para & 5'000,000 & Register a parachain with \\
     Registrar & deregister\_para & 10'000 & Deregister a parachain \\
     Registrar & set\_thread\_count & None & Reset the number of parathreads \\
-    Registrar & select\_parathread & None & Place a bid for a parathread to be progressed \\
-    Registrar & deregister\_parathread & None & Deregister a parathread and retrieve the deposit \\
-    Registrar & swap & None & Swap a parachain with another Parachain or parathread \\
+    Registrar & select\_parathread & None & Place a bid for parathread to be progressed \\
+    Registrar & deregister\_parathread & None & Deregister a parathread \\
+    Registrar & swap & None & Swap a parachain with another \\
     Slots & deposit\_event & None & Deposit one of this module's events \\
     Slots & new\_auction & 100'000 & Create a new aution \\
-    Slots & bid & 500'000 & Make a new bid from an account for deploying a new parachain \\
-    Slots & bid\_renew & 500'000 & Make a new bid for renewing that parachain \\
-    Slots & set\_offboarding & 1'000'000 & Set the off-boarding information for a parachain \\
-    Slots & fix\_deploy\_data & 500'000 & Set the information to deploy a new parachain \\
+    Slots & bid & 500'000 & Make a new bid for deploying \\
+    Slots & bid\_renew & 500'000 & Make a new bid for renewing \\
+    Slots & set\_offboarding & 1'000'000 & Set the off-boarding information \\
+    Slots & fix\_deploy\_data & 500'000 & Set the information for deployment \\
     Slots & elaborate\_deploy\_data & 5'000'000 & Note a new parachains's code \\
-    \hline
   \end{tabulary}
 \end{center}
 
