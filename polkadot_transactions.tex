@@ -18,8 +18,118 @@
 \author{Web3 Foundation}
 \date{February 2020}
 \maketitle
-\section{Polkadot Transactions}
 
+\section{Weights}
+Polkadot blocks have a limited window for block producers to create a block,
+limited amount of data that can be included per block and overall practical limit
+to storage footprint of the blockchain. Therefore, Polkadot has introduced a Weight
+system that tells block producers how "heavy" an extrinsic is. Given the maximum
+block weight, and the weight of the individual extrinsic in a transaction pool,
+the block producer can select a set of extrinsics that allows them to saturate the
+block while not going over the limits.
+\newline
+
+Additionally, Polkadot has introduced an available block ratio which ensures that
+only a portion of the total maximum block weight is used for regular transactions.
+This also introduces the concept of operational transactions which are system
+critical operations that can use the rest of the available block weight.
+\todo{define operational transactions}
+\newline
+
+\subsection*{Example}
+Considering the maximum block weight is 1'000'000, the weight of
+individual transactions is 1'000 and the available block ration is 80\%,
+about 800 transfers per block could be possible.
+
+\begin{verbatim}
+    1'000'000 * .80 / 1'000 = 800 transfers per block
+\end{verbatim}
+
+\subsection{Fees}
+To bring the weight system to the users of Polkadot, a tightly couples fee system
+is introduced. Users will pay a transaction fee proportional to the weight of the
+call they are making.
+
+\begin{verbatim}
+    total_fee = base_fee + length_fee + weight_fee
+\end{verbatim}
+
+\todo{explain more about fees: base fee, length, define types, etc.}
+
+\subsection{Calculating weights}
+Weights should be accurately calculated relatively to the runtime functions
+computational and resource complexity.
+\newline
+
+Following operations must be considered:
+
+\begin{itemize}
+\item Storage Operations (read, write, mutate, etc.)
+\item Codec Operations (serializing/deserializing, etc.)
+\item Search / Sort / Notable computational
+\item Calls to other functions
+\end{itemize}
+
+\subsection{Calculating and assigning Weight values}
+The simple methodology for obtaining weight values is as follows:
+
+\begin{itemize}
+\item Benchmark the function in the Polkadot runtime.
+\SubItem{Benchmarks are using the native execution environment.}
+\item Assume target block time to be \texttt{2} seconds.
+\item Assume each block to be at most full by 25\% to be conservative.
+\texttt{target\_block\_fullness = 0.25}.
+\item Due to possible errors in benchmarks, the fact that benchmarks are not measuring
+the worst-case scenario, caching and non-runtime code, one should take 1 second
+apart for any unexpected behavior or delays. Hence, the available time for functions
+to execute is assumed to be 1 second per block.
+\item Since weights should be a representation of the time it takes to execute
+a function, apply \texttt{target\_block\_fullness} to this time, yielding
+\texttt{250\_000\_000ns} (nano seconds) as the available block execution time.
+\item Define the total weight units available per block to be \texttt{1'000'000'000}.
+Applying the same \texttt{target\_block\_fullness}.
+\SubItem{\texttt{total\_block\_weight = 1'000'000'000}}
+\SubItem{\texttt{available\_block\_weight = 250'000'000}}
+\item Multiply all execution times values by a \textit{wasm-factor}, an estimate of
+how much slower web-assembly can be, which current is \texttt{5}.
+\item Divide the benchmarked execution time of each function by
+\texttt{available\_block\_execution\_time} to obtain what
+\textit{wasm-execution-time ration} of the block time it
+consumes.
+\item Multiply each obtained \textit{wasm-execution-time ration} per function, by the
+obtained\\ \texttt{available\_block\_weight}. This yields the actual weight of each
+function call.
+\item Round up these numbers by multiplying them to a value between 1 and 10
+manually, in order to:
+\SubItem{Take the actual implementation into account. Some transactions get a bigger
+bump here in weight since some functions are known to more expensive and the
+benchmarks might not showcase that.} \todo{How to determine that?}
+\SubItem{Lets be a little more pessimistic and round everything up.}
+\item Choose a very small number to be the fee for the absolut cheapest transaction.
+Based on this, the weights should be scaled one last time to obtain this final fee.
+\todo{currently not implemented in code.}
+\end{itemize}
+
+Note that the weights are factored by \texttt{1'000} for simplicity and to correct
+the fee values.
+
+\subsubsection*{Variables}
+Following variables should be noted:
+
+\begin{center}
+  \begin{tabulary}{1.0\textwidth}{LLL}
+    \textbf{Variable} & \textbf{Value} & \textbf{Description} \\
+    \texttt{target\_block\_fullness} & 0.25 & Each block must be at most full \\
+    \texttt{available\_block\_execution\_time} & 250\_000\_000ns & The min time required to execute a block \\
+    \texttt{total\_block\_weight} & 1\_000\_000\_000 & The total weight per block \\
+    \texttt{available\_block\_weight} & 250\_000\_000 & The available weight per function \\
+    \hline
+  \end{tabulary}
+\end{center}
+
+\todo{Is \texttt{target\_block\_fullness} a minimum requirement? Or the amount of transactions (non-operation transactions)}
+
+\section{Polkadot Transactions}
 \section*{Summary}
 \begin{center}
   \begin{tabulary}{1.0\textwidth}{LLLL}
@@ -425,114 +535,5 @@ Note a new parachain's code. This must be called after \verb|fix_deploy_data| an
 \item \verb|para_id| is the parachain ID whose code will be elaborated.
 \item \verb|code| is the preimage of the registered \verb|code_hash| of \verb|para_id|.
 \end{itemize}
-
-\section{Weights}
-Polkadot blocks have a limited window for block producers to create a block,
-limited amount of data that can be included per block and overall practical limit
-to storage footprint of the blockchain. Therefore, Polkadot has introduced a Weight
-system that tells block producers how "heavy" an extrinsic is. Given the maximum
-block weight, and the weight of the individual extrinsic in a transaction pool,
-the block producer can select a set of extrinsics that allows them to saturate the
-block while not going over the limits.
-\newline
-
-Additionally, Polkadot has introduced an available block ratio which ensures that
-only a portion of the total maximum block weight is used for regular transactions.
-This also introduces the concept of operational transactions which are system
-critical operations that can use the rest of the available block weight.
-\todo{define operational transactions}
-\newline
-
-\subsection*{Example}
-Considering the maximum block weight is 1'000'000, the weight of
-individual transactions is 1'000 and the available block ration is 80\%,
-about 800 transfers per block could be possible.
-
-\begin{verbatim}
-    1'000'000 * .80 / 1'000 = 800 transfers per block
-\end{verbatim}
-
-\subsection{Fees}
-To bring the weight system to the users of Polkadot, a tightly couples fee system
-is introduced. Users will pay a transaction fee proportional to the weight of the
-call they are making.
-
-\begin{verbatim}
-    total_fee = base_fee + length_fee + weight_fee
-\end{verbatim}
-
-\todo{explain more about fees: base fee, length, define types, etc.}
-
-\subsection{Calculating weights}
-Weights should be accurately calculated relatively to the runtime functions
-computational and resource complexity.
-\newline
-
-Following operations must be considered:
-
-\begin{itemize}
-\item Storage Operations (read, write, mutate, etc.)
-\item Codec Operations (serializing/deserializing, etc.)
-\item Search / Sort / Notable computational
-\item Calls to other functions
-\end{itemize}
-
-\subsection{Calculating and assigning Weight values}
-The simple methodology for obtaining weight values is as follows:
-
-\begin{itemize}
-\item Benchmark the function in the Polkadot runtime.
-\SubItem{Benchmarks are using the native execution environment.}
-\item Assume target block time to be \texttt{2} seconds.
-\item Assume each block to be at most full by 25\% to be conservative.
-\texttt{target\_block\_fullness = 0.25}.
-\item Due to possible errors in benchmarks, the fact that benchmarks are not measuring
-the worst-case scenario, caching and non-runtime code, one should take 1 second
-apart for any unexpected behavior or delays. Hence, the available time for functions
-to execute is assumed to be 1 second per block.
-\item Since weights should be a representation of the time it takes to execute
-a function, apply \texttt{target\_block\_fullness} to this time, yielding
-\texttt{250\_000\_000ns} (nano seconds) as the available block execution time.
-\item Define the total weight units available per block to be \texttt{1'000'000'000}.
-Applying the same \texttt{target\_block\_fullness}.
-\SubItem{\texttt{total\_block\_weight = 1'000'000'000}}
-\SubItem{\texttt{available\_block\_weight = 250'000'000}}
-\item Multiply all execution times values by a \textit{wasm-factor}, an estimate of
-how much slower web-assembly can be, which current is \texttt{5}.
-\item Divide the benchmarked execution time of each function by
-\texttt{available\_block\_execution\_time} to obtain what
-\textit{wasm-execution-time ration} of the block time it
-consumes.
-\item Multiply each obtained \textit{wasm-execution-time ration} per function, by the
-obtained\\ \texttt{available\_block\_weight}. This yields the actual weight of each
-function call.
-\item Round up these numbers by multiplying them to a value between 1 and 10
-manually, in order to:
-\SubItem{Take the actual implementation into account. Some transactions get a bigger
-bump here in weight since some functions are known to more expensive and the
-benchmarks might not showcase that.} \todo{How to determine that?}
-\SubItem{Lets be a little more pessimistic and round everything up.}
-\item Choose a very small number to be the fee for the absolut cheapest transaction.
-Based on this, the weights should be scaled one last time to obtain this final fee.
-\todo{currently not implemented in code.}
-\end{itemize}
-
-Note that the weights are factored by \texttt{1'000} for simplicity and to correct
-the fee values.
-
-\subsubsection*{Variables}
-
-\begin{center}
-  \begin{tabulary}{1.0\textwidth}{LLL}
-    \textbf{Variable} & \textbf{Value} & \textbf{Description} \\
-    \texttt{target\_block\_fullness} & 0.25 & Each block must be at most full \\
-    \texttt{available\_block\_execution\_time} & 250\_000\_000ns & The min time required to execute a block \\
-    \texttt{total\_block\_weight} & 1\_000\_000\_000 & The total weight per block \\
-    \texttt{available\_block\_weight} & 250\_000\_000 & The available weight per function \\
-    \hline
-  \end{tabulary}
-\end{center}
-
-\todo{Is \texttt{target\_block\_fullness} a minimum requirement? Or the amount of transactions (non-operation transactions)}
 
 \end{document}
