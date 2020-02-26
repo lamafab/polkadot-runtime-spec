@@ -466,6 +466,7 @@ call they are making.
 \subsection{Calculating weights}
 Weights should be accurately calculated relatively to the runtime functions
 computational and resource complexity.
+\newline
 
 Following operations must be considered:
 
@@ -476,18 +477,7 @@ Following operations must be considered:
 \item Calls to other functions
 \end{itemize}
 
-\subsubsection{Storage Operations}
-\todo{}
-\subsubsection{Codec Operations}
-\todo{}
-\subsubsection{Search / Sort / Notable Operations}
-\todo{}
-\subsubsection{Calls to other functions}
-\todo{}
-
-\subsection{Combining the Data}
-
-\subsection{Assigning Weight values}
+\subsection{Calculating and assigning Weight values}
 The simple methodology for obtaining weight values is as follows:
 
 \begin{itemize}
@@ -502,7 +492,7 @@ apart for any unexpected behavior or delays. Hence, the available time for funct
 to execute is assumed to be 1 second per block.
 \item Since weights should be a representation of the time it takes to execute
 a function, apply \texttt{target\_block\_fullness} to this time, yielding
-\texttt{250\_000\_000} (nano seconds) as the available block execution time.
+\texttt{250\_000\_000ns} (nano seconds) as the available block execution time.
 \item Define the total weight units available per block to be \texttt{1'000'000'000}.
 Applying the same \texttt{target\_block\_fullness}.
 \SubItem{\texttt{total\_block\_weight = 1'000'000'000}}
@@ -515,12 +505,12 @@ consumes.
 \item Multiply each obtained \textit{wasm-execution-time ration} per function, by the
 obtained\\ \texttt{available\_block\_weight}. This yields the actual weight of each
 dispatch.
-\item Round up these numbers by multiplying them to a value between 0 and 10
+\item Round up these numbers by multiplying them to a value between 1 and 10
 manually, in order to:
 \SubItem{Take the actual implementation into account. Some transactions get a bigger
 bump here in weight since some functions are known to more expensive and the
-benchmarks might not showcase that.}
-\SubItem{Be a bit more pessimistic and round everything up.}
+benchmarks might not showcase that.} \todo{How to determine that?}
+\SubItem{Lets be a little more pessimistic and round everything up.}
 \item Choose a very small number to be the fee for the absolut cheapest transaction.
 Based on this, the weights should be scaled one last time to obtain this final fee.
 \todo{currently not implemented in code.}
@@ -535,7 +525,7 @@ the fee values.
   \begin{tabulary}{1.0\textwidth}{LLL}
     \textbf{Variable} & \textbf{Value} & \textbf{Description} \\
     \texttt{target\_block\_fullness} & 0.25 &  \\
-    \texttt{available\_block\_execution\_time} & 250\_000\_000 & \\
+    \texttt{available\_block\_execution\_time} & 250\_000\_000ns & \\
     \texttt{total\_block\_weight} & 1\_000\_000\_000 & \\
     \texttt{available\_block\_weight} & 250\_000\_000 & \\
     \hline
