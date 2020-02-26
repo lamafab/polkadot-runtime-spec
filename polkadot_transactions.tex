@@ -34,7 +34,6 @@ only a portion of the total maximum block weight is used for regular transaction
 This also introduces the concept of operational transactions which are system
 critical operations that can use the rest of the available block weight.
 \todo{define operational transactions}
-\newline
 
 \subsection*{Example}
 Considering the maximum block weight is 1'000'000, the weight of
@@ -76,13 +75,13 @@ The simple methodology for obtaining weight values is as follows:
 \begin{itemize}
 \item Benchmark the function in the Polkadot runtime.
 \SubItem{Benchmarks are using the native execution environment.}
-\item Assume target block time to be \texttt{2} seconds.
-\item Assume each block to be at most full by 25\% to be conservative.
+\item Assume target block time to be \texttt{2} seconds. \todo{how was this determined?}
+\item Assume each block to be at most full by 25\%.
 \texttt{target\_block\_fullness = 0.25}.
 \item Due to possible errors in benchmarks, the fact that benchmarks are not measuring
 the worst-case scenario, caching and non-runtime code, one should take 1 second
 apart for any unexpected behavior or delays. Hence, the available time for functions
-to execute is assumed to be 1 second per block.
+to execute is assumed to be 1 second per block. \todo{how was this determined?}
 \item Since weights should be a representation of the time it takes to execute
 a function, apply \texttt{target\_block\_fullness} to this time, yielding
 \texttt{250\_000\_000ns} (nano seconds) as the available block execution time.
@@ -91,7 +90,7 @@ Applying the same \texttt{target\_block\_fullness}.
 \SubItem{\texttt{total\_block\_weight = 1'000'000'000}}
 \SubItem{\texttt{available\_block\_weight = 250'000'000}}
 \item Multiply all execution times values by a \textit{wasm-factor}, an estimate of
-how much slower web-assembly can be, which current is \texttt{5}.
+how much slower web-assembly can be, which current is \texttt{5}. \todo{how was this determined?}
 \item Divide the benchmarked execution time of each function by
 \texttt{available\_block\_execution\_time} to obtain what
 \textit{wasm-execution-time ration} of the block time it
@@ -103,31 +102,34 @@ function call.
 manually, in order to:
 \SubItem{Take the actual implementation into account. Some transactions get a bigger
 bump here in weight since some functions are known to more expensive and the
-benchmarks might not showcase that.} \todo{How to determine that?}
+benchmarks might not showcase that.} \todo{How is that bump calculated?}
 \SubItem{Lets be a little more pessimistic and round everything up.}
-\item Choose a very small number to be the fee for the absolut cheapest transaction.
+\item Choose a very small number to be the fee for the absolute cheapest transaction.
 Based on this, the weights should be scaled one last time to obtain this final fee.
-\todo{currently not implemented in code.}
+\todo{"currently not implemented in code", still valid?}
 \end{itemize}
 
 Note that the weights are factored by \texttt{1'000} for simplicity and to correct
 the fee values.
+\newpage
 
-\subsubsection*{Variables}
-Following variables should be noted:
+\subsubsection*{Variables and values}
+Relevant fixed values for Weight assignment:
 
 \begin{center}
   \begin{tabulary}{1.0\textwidth}{LLL}
     \textbf{Variable} & \textbf{Value} & \textbf{Description} \\
-    \texttt{target\_block\_fullness} & 0.25 & Each block must be at most full \\
-    \texttt{available\_block\_execution\_time} & 250\_000\_000ns & The min time required to execute a block \\
-    \texttt{total\_block\_weight} & 1\_000\_000\_000 & The total weight per block \\
-    \texttt{available\_block\_weight} & 250\_000\_000 & The available weight per function \\
+    target block time & 2 seconds & The target block time. \\
+    \textit{wasm-factor} & 5 seconds & Estimate of how much slower Wasm can be. \\
+    \texttt{target\_block\_fullness} & 0.25 & Each block must be at most full. \\
+    \texttt{available\_block\_execution\_time} & 250\_000\_000ns & The min time required to execute a block. \\
+    \texttt{total\_block\_weight} & 1\_000\_000\_000 & The total weight per block. \\
+    \texttt{available\_block\_weight} & 250\_000\_000 & The available weight per function. \\
     \hline
   \end{tabulary}
 \end{center}
 
-\todo{Is \texttt{target\_block\_fullness} a minimum requirement? Or the amount of transactions (non-operation transactions)}
+\todo{Is \texttt{target\_block\_fullness} the minimum requirement of transactions per block?}
 
 \section{Polkadot Transactions}
 \section*{Summary}
