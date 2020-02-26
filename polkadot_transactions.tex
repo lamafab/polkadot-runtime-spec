@@ -487,27 +487,28 @@ Following operations must be considered:
 The simple methodology for obtaining weight values is as follows:
 
 \begin{itemize}
-\item Benchmark as many of the function in the Polkadot runtime as possible.
+\item Benchmark the function in the Polkadot runtime.
 \SubItem{Benchmarks are using the native execution environment.}
 \item Assume target block time to be \verb|2| seconds.
 \item Assume each block to be at most full by 25\% to be conservative.
 \verb|target_block_fullness = 0.25|.
-\item Due to errors in benchmarks and the fact that benchmarks are not measuring
-the worstcase scenario, take 1 second apart for any unexpected behavior or delays.
-Hence, the available time for functions to execute is assumed to be 1 second per block.
+\item Due to possible errors in benchmarks, the fact that benchmarks are not measuring
+the worst-case scenario, caching and non-runtime code, one should take 1 second
+apart for any unexpected behavior or delays. Hence, the available time for functions
+to execute is assumed to be 1 second per block.
 \item Since weights should be a representation of the time it takes to execute
-a function, apply the target block fullness to the time, yielding 250 million nano
-seconds as the available block execution time.
+a function, apply \verb|target_block_fullness| to this time, yielding
+\verb|250_000_000ns| (nano seconds) as the available block execution time.
 \item Define the total weight units available per block to be \verb|1'000'000'000|.
 Applying the same \verb|target_block_fullness|.
 Define \verb|total_block_weight = 1'000'000'000| and\\
 \verb|available_block_weight = 250'000'000|
-\item Multiply all execution times values by a wasm-factor, an estimate of how much
-slower web-assembly can be. Currently, this value is 5.
+\item Multiply all execution times values by a \textit{wasm-factor}, an estimate of
+how much slower web-assembly can be, which current is \verb|5|.
 \item Divide the benchmarked execution time of each function by
 \verb|available_block_execution_time| to obtain what ration of the block time it
 consumes.
-\item Multiply each obtained wasm-execution-time ration per function, by the
+\item Multiply each obtained \textit{wasm-execution-time ration} per function, by the
 obtained\\ \verb|available_block_weight|. This yields the actual weight of each
 dispatch.
 \item Round up these numbers by multiplying them to a value between 0 and 10
@@ -520,5 +521,21 @@ benchmarks might not showcase that.}
 Based on this, the weights should be scaled one last time to obtain this final fee.
 \todo{currently not implemented in code.}
 \end{itemize}
+
+Note that the weights are factored by \verb|1'000| for simplicity and to correct
+the fee values.
+
+\subsubsection*{Variables}
+
+\begin{center}
+  \begin{tabulary}{1.0\textwidth}{LLL}
+    \textbf{Variable} & \textbf{Value} & \textbf{Description} \\
+    \texttt{target\_block\_fullness} & 0.25 &  \\
+    \texttt{available\_block\_execution\_time} & 250\_000\_000ns & \\
+    \texttt{total\_block\_weight} & 1\_000\_000\_000 & \\
+    \texttt{available\_block\_weight} & 250\_000\_000 & \\
+    \hline
+  \end{tabulary}
+\end{center}
 
 \end{document}
