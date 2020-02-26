@@ -9,6 +9,9 @@
 }
 \usepackage{color}
 \newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
+\newcommand{\SubItem}[1]{
+    {\setlength\itemindent{15pt} \item[-] #1}
+}
 
 \begin{document}
 \title{Polkadot Runtime Specification}
@@ -440,12 +443,13 @@ critical operations that can use the rest of the available block weight.
 \todo{define operational transactions}
 \newline
 
-Example: considering the maximum block weight is 1'000'000, the weight of
-individual transactions is 1'000 and the available block ration is 20\%,
-about 200 transfers per block could be possible.
+\subsection*{Example}
+Considering the maximum block weight is 1'000'000, the weight of
+individual transactions is 1'000 and the available block ration is 80\%,
+about 800 transfers per block could be possible.
 
 \begin{verbatim}
-    1'000'000 * .20 / 1'000 = 200 transfers per block
+    1'000'000 * .80 / 1'000 = 800 transfers per block
 \end{verbatim}
 
 \subsection{Fees}
@@ -478,5 +482,43 @@ Following operations must be considered:
 \subsubsection{Calls to other functions}
 
 \subsection{Combining the Data}
+
+\subsection{Assigning Weight values}
+The simple methodology for obtaining weight values is as follows:
+
+\begin{itemize}
+\item Benchmark as many of the function in the Polkadot runtime as possible.
+\SubItem{Benchmarks are using the native execution environment.}
+\item Assume target block time to be \verb|2| seconds.
+\item Assume each block to be at most full by 25\% to be conservative.
+\verb|target_block_fullness = 0.25|.
+\item Due to errors in benchmarks and the fact that benchmarks are not measuring
+the worstcase scenario, take 1 second apart for any unexpected behavior or delays.
+Hence, the available time for functions to execute is assumed to be 1 second per block.
+\item Since weights should be a representation of the time it takes to execute
+a function, apply the target block fullness to the time, yielding 250 million nano
+seconds as the available block execution time.
+\item Define the total weight units available per block to be \verb|1'000'000'000|.
+Applying the same \verg|target_block_fullness|.
+\SubItem{\verb|total_block_weight = 1'000'000'000|}
+\SubItem{\verb|available_block_weight = 250'000'000|}
+\item Multiply all execution times values by a wasm-factor, an estimate of how much
+slower web-assembly can be. Currently, this value is 5.
+\item Divide the benchmarked execution time of each function by
+\verb|available_block_execution_time| to obtain what ration of the block time it
+consumes.
+\item Multiply each obtained wasm-execution-time ration per function, by the
+obtained \verb|available_block_weight|. This yields the actual weight of each
+dispatch.
+\item Round up these numbers by multiplying them to a value between 0 and 10
+manually, in order to:
+\SubItem{Take the actual implementation into account. Some transactions get a bigger
+bump here in weight since some functions are known to more expensive and the
+benchmarks might not showcase that.}
+\SubItem{Be a bit more pessimistic and round everything up.}
+\item Choose a very small number to be the fee for the absolut cheapest transaction.
+Based on this, the weights should be scaled one last time to obtain this final fee.
+\todo{currently not implemented in code.}
+\end{itemize}
 
 \end{document}
