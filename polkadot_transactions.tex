@@ -499,16 +499,16 @@ Hence, the available time for functions to execute is assumed to be 1 second per
 a function, apply the target block fullness to the time, yielding 250 million nano
 seconds as the available block execution time.
 \item Define the total weight units available per block to be \verb|1'000'000'000|.
-Applying the same \verg|target_block_fullness|.
-\SubItem{\verb|total_block_weight = 1'000'000'000|}
-\SubItem{\verb|available_block_weight = 250'000'000|}
+Applying the same \verb|target_block_fullness|.
+Define \verb|total_block_weight = 1'000'000'000| and\\
+\verb|available_block_weight = 250'000'000|
 \item Multiply all execution times values by a wasm-factor, an estimate of how much
 slower web-assembly can be. Currently, this value is 5.
 \item Divide the benchmarked execution time of each function by
 \verb|available_block_execution_time| to obtain what ration of the block time it
 consumes.
 \item Multiply each obtained wasm-execution-time ration per function, by the
-obtained \verb|available_block_weight|. This yields the actual weight of each
+obtained\\ \verb|available_block_weight|. This yields the actual weight of each
 dispatch.
 \item Round up these numbers by multiplying them to a value between 0 and 10
 manually, in order to:
