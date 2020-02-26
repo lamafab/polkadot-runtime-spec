@@ -500,11 +500,12 @@ Applying the same \texttt{target\_block\_fullness}.
 \item Multiply all execution times values by a \textit{wasm-factor}, an estimate of
 how much slower web-assembly can be, which current is \texttt{5}.
 \item Divide the benchmarked execution time of each function by
-\texttt{available\_block\_execution\_time} to obtain what ration of the block time it
+\texttt{available\_block\_execution\_time} to obtain what
+\textit{wasm-execution-time ration} of the block time it
 consumes.
 \item Multiply each obtained \textit{wasm-execution-time ration} per function, by the
 obtained\\ \texttt{available\_block\_weight}. This yields the actual weight of each
-dispatch.
+function call.
 \item Round up these numbers by multiplying them to a value between 1 and 10
 manually, in order to:
 \SubItem{Take the actual implementation into account. Some transactions get a bigger
@@ -524,12 +525,14 @@ the fee values.
 \begin{center}
   \begin{tabulary}{1.0\textwidth}{LLL}
     \textbf{Variable} & \textbf{Value} & \textbf{Description} \\
-    \texttt{target\_block\_fullness} & 0.25 &  \\
-    \texttt{available\_block\_execution\_time} & 250\_000\_000ns & \\
-    \texttt{total\_block\_weight} & 1\_000\_000\_000 & \\
-    \texttt{available\_block\_weight} & 250\_000\_000 & \\
+    \texttt{target\_block\_fullness} & 0.25 & Each block must be at most full \\
+    \texttt{available\_block\_execution\_time} & 250\_000\_000ns & The min time required to execute a block \\
+    \texttt{total\_block\_weight} & 1\_000\_000\_000 & The total weight per block \\
+    \texttt{available\_block\_weight} & 250\_000\_000 & The available weight per function \\
     \hline
   \end{tabulary}
 \end{center}
+
+\todo{Is \texttt{target\_block\_fullness} a minimum requirement? Or the amount of transactions (non-operation transactions)}
 
 \end{document}
