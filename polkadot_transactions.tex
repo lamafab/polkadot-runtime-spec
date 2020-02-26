@@ -7,6 +7,8 @@
     left=20mm,
     top=20mm,
 }
+\usepackage{color}
+\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
 
 \begin{document}
 \title{Polkadot Runtime Specification}
@@ -420,5 +422,31 @@ Note a new parachain's code. This must be called after \verb|fix_deploy_data| an
 \item \verb|para_id| is the parachain ID whose code will be elaborated.
 \item \verb|code| is the preimage of the registered \verb|code_hash| of \verb|para_id|.
 \end{itemize}
+
+\section{Weights}
+Polkadot blocks have a limited window for block producers to create a block,
+limited amount of data that can be included per block and overall practical limit
+to storage footprint of the blockchain. Therefore, Polkadot has introduced a Weight
+system that tells block producers how "heavy" an extrinsic is. Given the maximum
+block weight, and the weight of the individual extrinsic in a transaction pool,
+the block producer can select a set of extrinsics that allows them to saturate the
+block while not going over the limits.
+
+\newline
+
+On top of this basic idea, Substrate has additionally introduced a configurable
+AvailableBlockRatio which ensures that only a portion of the total MaximumBlockWeight
+is used for regular transactions. This also introduces the concept of operational
+transactions which are system critical operations that can use the rest of the
+available block weight.
+
+\newline
+
+Additionally, Polkadot has introduced an available block ratio which ensures that
+only a portion of the total maximum block weight is used for regular transactions.
+This also introduces the concept of operational transactions which are system
+critical operations that can use the rest of the available block weight.
+
+\newline
 
 \end{document}
