@@ -110,40 +110,53 @@ computation present in the logic.
 
 \subsubsection{Calls to other functions}
 
-If a other functions get called, one should take note of that and assign these calls
+If an other functions get called, one should take note of that and assign these calls
 with their own variable.
 \newline
 
-\todo{}
-For example, when a function reserves some balance in the Balances pallet or emits
-an event through the System pallet, you should document:
-\newline
+For example, when a function reserves some balance or emits an event through the
+system, it should be document:
 
-\todo{}
+\begin{verbatim}
 - One balance reserve operation: O(B)
 - One event emitted: O(E)
+\end{verbatim}
 
 \subsubsection{Combining the data}
-Once you have good documentation for your runtime function, you need to consolidate
-it into a single overall order of the function.Lets combine the different example
-operations to create a full end to end example.
+After writing the documentation for the runtime function, one must consolidate
+it into a single overall order of the function. For example, consider combining the
+different example operations to create a full end to end example.
+\newline
 
-Note: You may have introduced multiple different variables into your overall
-weight documentation, so be sure to document what these variables represent.
+\begin{verbatim}
+# <weight>
+Key: M (len of members), B (reserve balance), E (event)
+- One storage read to get the members of this pallet: `O(M)`.
+- One balance reserve operation: O(B)
+- Insert a new member into sorted list: O(logM).
+- One storage write to update the members: `O(M)`.
+- One event emitted: O(E)
 
-If you look at this example, you can see we had two operations that were O(M)
-(the storage read and write), but our overall order does not take this into account.
+Total Complexity: O(M + logM + B + E)
+# </weight>
+\end{verbatim}
 
-When doing empirical testing, we are unable to separate complexities which have the
+Looking at this example, one can see that two operations were \texttt{O(M)} (the
+storage read and write), but our overall order does not take this into account.
+\newline
+
+When doing empirical testing, one is unable to separate complexities which have the
 same order. This means that there could be many many more operations added to this
-function, of order O(M), O(logM), etc… but it would not change our final formula
-as a function of M, B, and E:
+function, of order \texttt{O(M)}, \texttt{O(logM)}, etc. but it would not change
+the final formula as a function of \texttt{M}, \texttt{B}, and \texttt{E}:
+\newline
 
-weight(M, B, E) = K\_1 + K\_2 * M + K\_3 * logM + B + E
+\texttt{weight(M, B, E) = K\_1 + K\_2 * M + K\_3 * logM + B + E}
+\newline
 
 The difference between two functions with the same order will be empirically
 measured through on-chain tests. The goal of this step is to simply derive the
-coefficients (K) that we will be searching for when we do the next step.
+coefficients (\texttt{K}) that one has to search for when continuing with the next step.
 
 \subsubsection{Temporary Weight Annotation}
 \todo{}
