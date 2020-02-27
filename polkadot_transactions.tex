@@ -93,18 +93,20 @@ documented:
 \texttt{- One storage write to update the members of this pallet: `O(M)`.}
 
 \subsubsection{Search / Sort / Notable Computations}
-If you need to search or sort in your runtime module, it is also important to note
+When searching or sorting in the runtime module, it is also important to note
 the relative complexity of those operations.
+\newline
 
-For example, if you are searching for an item in a sorted list, a binary\_search
-operation should take O(logM), while an unsorted list, should take O(M).
+For example, when searching for an item in a sorted list, a binary\_search
+operation should take \texttt{O(logM)}, while an unsorted list, should take
+\texttt{O(M)}.
+\newline
 
-So the documentation may look like:
-
-- Insert a new member into sorted list: O(logM).
+\texttt{- Insert a new member into sorted list: O(logM).}
+\newline
 
 This kind of documentation should be present for any sort of notable heavy
-computation present in your logic.
+computation present in the logic.
 
 \subsubsection{Calls to other functions}
 
