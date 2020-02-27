@@ -22,7 +22,7 @@
 \section{Weights}
 Polkadot blocks have a limited window for block producers to create a block,
 limited amount of data that can be included per block and overall practical limit
-to storage footprint of the blockchain. Therefore, Polkadot has introduced a Weight
+to storage footprint of the blockchain. Therefore, Polkadot has introduced a weight
 system that tells block producers how "heavy" an extrinsic is. Given the maximum
 block weight, and the weight of the individual extrinsic in a transaction pool,
 the block producer can select a set of extrinsics that allows them to saturate the
@@ -34,9 +34,9 @@ only a portion of the total maximum block weight is used for regular transaction
 This also introduces the concept of operational transactions which are system
 critical operations that can use the rest of the available block weight.
 \todo{define operational transactions}
+\newline
 
-\subsection*{Example}
-Considering the maximum block weight is 1'000'000, the weight of
+For example, considering the maximum block weight is 1'000'000, the weight of
 individual transactions is 1'000 and the available block ration is 80\%,
 about 800 transfers per block could be possible.
 
@@ -76,11 +76,11 @@ that subsequent calls do not benefit from earlier caching. This might be possibl
 just randomizing everything, but it is probably better to clear all caches between calls.
 \newline
 
-For this reason, the functions itself should be documented in order to assist with the
-assignment of Weights of individual functions.
+For this reason, the functions itself should also be documented in order to assist
+with the assignment of weights of individual functions.
 
 \subsection{Documentation of Weights}
-Functions should contain Documentation about the computational and resource complexity.
+Functions should contain documentation about the computational and resource complexity.
 The result of weight documentation is to arrive at the final order of a function
 in terms of Big-O notation.
 
