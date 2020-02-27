@@ -50,8 +50,11 @@ is introduced. Users will pay a transaction fee proportional to the weight of th
 call they are making.
 
 \begin{verbatim}
-    total_fee = base_fee + length_fee + weight_fee
+    total_fee = base_fee + length_fee + weight_fee + tip + multiplier
 \end{verbatim}
+
+The multiplier makes sure that the final fee includes some degree of variability,
+when block production becomes more expensive respectively less expensive.
 
 \todo{explain more about fees: base fee, length, define types, etc.}
 
