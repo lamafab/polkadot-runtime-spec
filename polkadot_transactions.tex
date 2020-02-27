@@ -55,6 +55,92 @@ call they are making.
 
 \todo{explain more about fees: base fee, length, define types, etc.}
 
+\subsection{Documentation of Weights}
+Functions should contain Documentation about the computational and resource complexity.
+The result of weight documentation is to arrive at the final order of a function
+in terms of Big-O notation.
+
+\subsubsection{What to document}
+The document should include information about the runtime functions which have notable
+execution costs. This includes:
+
+\begin{itemize}
+\item Storage Operations (read, write, mutate, etc.)
+\item Codec Operations (serializing/deserializing)
+\item Search / Sort / Notable computation
+\item Calls to other functions
+\end{itemize}
+
+\subsubsection{Stroage and Codec Operations}
+Accessing storage is a heavy operation, and one that should be well documented and
+optimized in favor writing “functional code”. See Best Practices.
+
+The each storage operation should be documented with the relative codec complexity
+of interacting with that storage.
+
+For example, if you are reading a vector of members from a single value storage
+item, the weight documentation should read:
+
+- One storage read to get the members of this pallet: `O(M)`.
+
+In this case reading the vector from storage has a codec complexity of \texttt{O(M)}
+to deserialize the M member accounts in the vector.
+
+Later in your module, you might go ahead and write the data back into the runtime,
+which should also be documented:
+
+- One storage write to update the members of this pallet: `O(M)`.
+
+\subsubsection{Search / Sort / Notable Computations}
+If you need to search or sort in your runtime module, it is also important to note
+the relative complexity of those operations.
+
+For example, if you are searching for an item in a sorted list, a binary\_search
+operation should take O(logM), while an unsorted list, should take O(M).
+
+So the documentation may look like:
+
+- Insert a new member into sorted list: O(logM).
+
+This kind of documentation should be present for any sort of notable heavy
+computation present in your logic.
+
+\subsubsection{Calls to other functions}
+
+The computational complexity of your function may extend beyond your pallet. If you call other FRAME pallets either directly or through Trait configurations, you should take note of that, and assign these calls with their own variable.
+
+For example, if you write a function which reserves some balance in the Balances pallet or emits an event through the System pallet, you should document:
+
+- One balance reserve operation: O(B)
+- One event emitted: O(E)
+
+\subsubsection{Combining the data}
+Once you have good documentation for your runtime function, you need to consolidate
+it into a single overall order of the function.Lets combine the different example
+operations to create a full end to end example.
+
+Note: You may have introduced multiple different variables into your overall
+weight documentation, so be sure to document what these variables represent.
+
+If you look at this example, you can see we had two operations that were O(M)
+(the storage read and write), but our overall order does not take this into account.
+
+When doing empirical testing, we are unable to separate complexities which have the
+same order. This means that there could be many many more operations added to this
+function, of order O(M), O(logM), etc… but it would not change our final formula
+as a function of M, B, and E:
+
+weight(M, B, E) = K\_1 + K\_2 * M + K\_3 * logM + B + E
+
+The difference between two functions with the same order will be empirically
+measured through on-chain tests. The goal of this step is to simply derive the
+coefficients (K) that we will be searching for when we do the next step.
+
+\subsubsection{Temporary Weight Annotation}
+\todo{}
+
+\subsubsection{Measuring Weights}
+\todo{}
 
 \section{Polkadot Transactions}
 \section*{Summary}
