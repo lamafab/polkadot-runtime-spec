@@ -71,25 +71,26 @@ execution costs. This includes:
 \item Calls to other functions
 \end{itemize}
 
-\subsubsection{Stroage and Codec Operations}
+\subsubsection{Storage and Codec Operations}
 Accessing storage is a heavy operation, and one that should be well documented and
-optimized in favor writing “functional code”. See Best Practices.
-
-The each storage operation should be documented with the relative codec complexity
-of interacting with that storage.
+optimized in favor writing “functional code”. Each storage operation should be
+documented with the relative codec complexity of interacting with that storage.
+\newline
 
 For example, if you are reading a vector of members from a single value storage
 item, the weight documentation should read:
+\newline
 
-- One storage read to get the members of this pallet: `O(M)`.
+\texttt{- One storage read to get the members of this pallet: `O(M)`.}
+\newline
 
 In this case reading the vector from storage has a codec complexity of \texttt{O(M)}
-to deserialize the M member accounts in the vector.
+to deserialize the \texttt{M} member accounts in the vector. Later in your module,
+you might go ahead and write the data back into the runtime, which should also be
+documented:
+\newline
 
-Later in your module, you might go ahead and write the data back into the runtime,
-which should also be documented:
-
-- One storage write to update the members of this pallet: `O(M)`.
+\texttt{- One storage write to update the members of this pallet: `O(M)`.}
 
 \subsubsection{Search / Sort / Notable Computations}
 If you need to search or sort in your runtime module, it is also important to note
