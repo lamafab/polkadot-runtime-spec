@@ -110,10 +110,16 @@ computation present in the logic.
 
 \subsubsection{Calls to other functions}
 
-The computational complexity of your function may extend beyond your pallet. If you call other FRAME pallets either directly or through Trait configurations, you should take note of that, and assign these calls with their own variable.
+If a other functions get called, one should take note of that and assign these calls
+with their own variable.
+\newline
 
-For example, if you write a function which reserves some balance in the Balances pallet or emits an event through the System pallet, you should document:
+\todo{}
+For example, when a function reserves some balance in the Balances pallet or emits
+an event through the System pallet, you should document:
+\newline
 
+\todo{}
 - One balance reserve operation: O(B)
 - One event emitted: O(E)
 
