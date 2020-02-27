@@ -55,6 +55,28 @@ call they are making.
 
 \todo{explain more about fees: base fee, length, define types, etc.}
 
+\subsubsection{Measuring Weights}
+To measure weights, the functions should be tested with various states and inputs
+to effect different variables. The inputs must be randomized because some operations
+(like searching and inserting) can have dramatically different costs depending on
+the specific inputs.
+\newline
+
+For example, if an account happens to begin with \texttt{0xffff...} then it’ll be inserted at
+the end of the array, which might be very cheap (if the array is over-allocated).
+If it goes in at the beginning, then it could be very expensive, needing a large
+memory move.
+\newline
+
+One can’t reasonably try all inputs, and it is too expensive to analyze the logic by
+hand to determine the worst cases. Therefore, the inputs should be random data for
+individual values and use the worst time that comes out.
+\newline
+
+It should be strictly ensured that subsequent calls do not benefit from earlier
+caching. This might be possible by just randomizing everything, but it is probably
+better to clear all caches between calls.
+
 \subsection{Documentation of Weights}
 Functions should contain Documentation about the computational and resource complexity.
 The result of weight documentation is to arrive at the final order of a function
@@ -159,9 +181,6 @@ measured through on-chain tests. The goal of this step is to simply derive the
 coefficients (\texttt{K}) that one has to search for when continuing with the next step.
 
 \subsubsection{Temporary Weight Annotation}
-\todo{}
-
-\subsubsection{Measuring Weights}
 \todo{}
 
 \section{Polkadot Transactions}
