@@ -67,15 +67,17 @@ the end of the array, which might be very cheap (if the array is over-allocated)
 If it goes in at the beginning, then it could be very expensive, needing a large
 memory move.
 \newline
+\newpage
 
 One can’t reasonably try all inputs, and it is too expensive to analyze the logic by
 hand to determine the worst cases. Therefore, the inputs should be random data for
-individual values and use the worst time that comes out.
+individual values and use the worst time that comes out. It should be strictly ensured
+that subsequent calls do not benefit from earlier caching. This might be possible by
+just randomizing everything, but it is probably better to clear all caches between calls.
 \newline
 
-It should be strictly ensured that subsequent calls do not benefit from earlier
-caching. This might be possible by just randomizing everything, but it is probably
-better to clear all caches between calls.
+For this reason, the functions itself should be documented in order to assist with the
+assignment of Weights of individual functions.
 
 \subsection{Documentation of Weights}
 Functions should contain Documentation about the computational and resource complexity.
@@ -87,10 +89,10 @@ The document should include information about the runtime functions which have n
 execution costs. This includes:
 
 \begin{itemize}
-\item Storage Operations (read, write, mutate, etc.)
-\item Codec Operations (serializing/deserializing)
-\item Search / Sort / Notable computation
-\item Calls to other functions
+\item Storage Operations (read, write, mutate, etc.).
+\item Codec Operations (serializing/deserializing).
+\item Search / Sort / Notable computation.
+\item Calls to other functions.
 \end{itemize}
 
 \subsubsection{Storage and Codec Operations}
