@@ -7,14 +7,191 @@
     left=20mm,
     top=20mm,
 }
+\usepackage{color}
+\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
+\newcommand{\SubItem}[1]{
+    {\setlength\itemindent{15pt} \item[-] #1}
+}
 
 \begin{document}
 \title{Polkadot Runtime Specification}
 \author{Web3 Foundation}
 \date{February 2020}
 \maketitle
-\section{Polkadot Transactions}
 
+\section{Weights}
+Polkadot blocks have a limited window for block producers to create a block,
+limited amount of data that can be included per block and overall practical limit
+to storage footprint of the blockchain. Therefore, Polkadot has introduced a weight
+system that tells block producers how "heavy" an extrinsic is. Given the maximum
+block weight, and the weight of the individual extrinsic in a transaction pool,
+the block producer can select a set of extrinsics that allows them to saturate the
+block while not going over the limits.
+\newline
+
+Additionally, Polkadot has introduced an available block ratio which ensures that
+only a portion of the total maximum block weight is used for regular transactions.
+This also introduces the concept of operational transactions which are system
+critical operations that can use the rest of the available block weight.
+\todo{define operational transactions}
+\newline
+
+For example, considering the maximum block weight is 1'000'000, the weight of
+individual transactions is 1'000 and the available block ration is 80\%,
+about 800 transfers per block could be possible.
+
+\begin{verbatim}
+    1'000'000 * .80 / 1'000 = 800 transfers per block
+\end{verbatim}
+
+\subsection{Fees}
+To bring the weight system to the users of Polkadot, a tightly couples fee system
+is introduced. Users will pay a transaction fee proportional to the weight of the
+call they are making.
+
+\begin{verbatim}
+    total_fee = base_fee + length_fee + weight_fee + tip + multiplier
+\end{verbatim}
+
+The multiplier makes sure that the final fee includes some degree of variability,
+when block production becomes more expensive respectively less expensive.
+The configurable multiplier is set by the runtime, which also specifies how that
+multiplier can change.
+\newline
+
+\todo{explain more about fees: base fee, length, define types, etc.}
+
+\subsubsection{Measuring Weights}
+To measure weights, the functions should be tested with various states and inputs
+to effect different variables. The inputs must be randomized because some operations
+(like searching and inserting) can have dramatically different costs depending on
+the specific inputs.
+\newline
+
+For example, if an account happens to begin with \texttt{0xffff...} then it’ll be inserted at
+the end of the array, which might be very cheap (if the array is over-allocated).
+If it goes in at the beginning, then it could be very expensive, needing a large
+memory move.
+\newline
+\newpage
+
+One can’t reasonably try all inputs, and it is too expensive to analyze the logic by
+hand to determine the worst cases. Therefore, the inputs should be random data for
+individual values and use the worst time that comes out. It should be strictly ensured
+that subsequent calls do not benefit from earlier caching. This might be possible by
+just randomizing everything, but it is probably better to clear all caches between calls.
+\newline
+
+For this reason, the functions itself should also be documented in order to assist
+with the assignment of weights of individual functions.
+
+\subsection{Documentation of Weights}
+Functions should contain documentation about the computational and resource complexity.
+The result of weight documentation is to arrive at the final order of a function
+in terms of Big-O notation.
+
+\subsubsection{What to document}
+The document should include information about the runtime functions which have notable
+execution costs. This includes:
+
+\begin{itemize}
+\item Storage Operations (read, write, mutate, etc.).
+\item Codec Operations (serializing/deserializing).
+\item Search / Sort / Notable computation.
+\item Calls to other functions.
+\end{itemize}
+
+\subsubsection{Storage and Codec Operations}
+Accessing storage is a heavy operation, and one that should be well documented and
+optimized in favor writing “functional code”. Each storage operation should be
+documented with the relative codec complexity of interacting with that storage.
+\newline
+
+For example, if you are reading a vector of members from a single value storage
+item, the weight documentation should read:
+\newline
+
+\texttt{- One storage read to get the members of this pallet: `O(M)`.}
+\newline
+
+In this case reading the vector from storage has a codec complexity of \texttt{O(M)}
+to deserialize the \texttt{M} member accounts in the vector. Later in your module,
+you might go ahead and write the data back into the runtime, which should also be
+documented:
+\newline
+
+\texttt{- One storage write to update the members of this pallet: `O(M)`.}
+
+\subsubsection{Search / Sort / Notable Computations}
+When searching or sorting in the runtime module, it is also important to note
+the relative complexity of those operations.
+\newline
+
+For example, when searching for an item in a sorted list, a binary\_search
+operation should take \texttt{O(logM)}, while an unsorted list, should take
+\texttt{O(M)}.
+\newline
+
+\texttt{- Insert a new member into sorted list: O(logM).}
+\newline
+
+This kind of documentation should be present for any sort of notable heavy
+computation present in the logic.
+
+\subsubsection{Calls to other functions}
+
+If an other functions get called, one should take note of that and assign these calls
+with their own variable.
+\newline
+
+For example, when a function reserves some balance or emits an event through the
+system, it should be document:
+
+\begin{verbatim}
+- One balance reserve operation: O(B)
+- One event emitted: O(E)
+\end{verbatim}
+
+\subsubsection{Combining the data}
+After writing the documentation for the runtime function, one must consolidate
+it into a single overall order of the function. For example, consider combining the
+different example operations to create a full end to end example.
+\newline
+
+\begin{verbatim}
+# <weight>
+Key: M (len of members), B (reserve balance), E (event)
+- One storage read to get the members of this pallet: `O(M)`.
+- One balance reserve operation: O(B)
+- Insert a new member into sorted list: O(logM).
+- One storage write to update the members: `O(M)`.
+- One event emitted: O(E)
+
+Total Complexity: O(M + logM + B + E)
+# </weight>
+\end{verbatim}
+
+Looking at this example, one can see that two operations were \texttt{O(M)} (the
+storage read and write), but our overall order does not take this into account.
+\newline
+
+When doing empirical testing, one is unable to separate complexities which have the
+same order. This means that there could be many many more operations added to this
+function, of order \texttt{O(M)}, \texttt{O(logM)}, etc. but it would not change
+the final formula as a function of \texttt{M}, \texttt{B}, and \texttt{E}:
+\newline
+
+\texttt{weight(M, B, E) = K\_1 + K\_2 * M + K\_3 * logM + B + E}
+\newline
+
+The difference between two functions with the same order will be empirically
+measured through on-chain tests. The goal of this step is to simply derive the
+coefficients (\texttt{K}) that one has to search for when continuing with the next step.
+
+\subsubsection{Temporary Weight Annotation}
+\todo{}
+
+\section{Polkadot Transactions}
 \section*{Summary}
 \begin{center}
   \begin{tabulary}{1.0\textwidth}{LLLL}
