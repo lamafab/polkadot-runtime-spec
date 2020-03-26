@@ -46,12 +46,24 @@ The inputs parameters highly vary depending on the Runtime function and must the
 be carefully selected. The benchmarks should use parameters which will most likely be
 used in regular cases, as intended by the authors, but must also consider worst case
 scenarios and inputs which might decelerate or heavily impact performance of the function.
+The input parameters should be randomized in order to cause various effects in behaviors
+on certain values, such as memory relocations and other results that can impact performance
+and resource devastation.
+
+\subsection{Blockchain State}
+The benchmarks should be performed on blockchain states that already contain a history of
+extrinsics and storage changes. Runtime functions that required read/writing on structures
+such as Tries will therefore produce more realistic results that will reflect the real-world
+performance of the Runtime.
 
 \subsection{Environment}
 The benchmarks should be executed on clean systems without interference of other processes
 or software. Additionally, the benchmarks should be executed multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
+\section{Chosen Parameters for Polkadot}
+This section describes the chosen parameters for the Polkadot Runtime \todo{tag/revision},
+incl
 
 \subsection{Fees}
 To bring the weight system to the users of Polkadot, a tightly couples fee system
