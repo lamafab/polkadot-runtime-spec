@@ -37,18 +37,20 @@ by Polkadot itself.
 \section{Weight Assignment}
 Assigning weights based on theoretical performance such as big O notation proves to be
 unreliable and too complex due to imprecision in back-end systems, internal communication
-within Runtime and design choices in the software. Therefore, all available Runtime 
+within the Runtime and design choices in the software. Therefore, all available Runtime 
 functions, which create and execute extrinsics, have to be benchmarked with a large
-colection of input parameters.
-\newline
+collection of input parameters.
 
 \subsection{Parameters}
 The inputs parameters highly vary depending on the Runtime function and must therefore
 be carefully selected. The benchmarks should use parameters which will most likely be
-used in regular cases, but must also consider worst case scenarios and inputs which
-might decelerate or heavily impact performance of the function.
+used in regular cases, as intended by the authors, but must also consider worst case
+scenarios and inputs which might decelerate or heavily impact performance of the function.
 
 \subsection{Environment}
+The benchmarks should be executed on clean systems without interference of other processes
+or software. Additionally, the benchmarks should be executed multiple machines with different
+system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
 
 \subsection{Fees}
