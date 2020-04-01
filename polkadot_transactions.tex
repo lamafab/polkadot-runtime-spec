@@ -16,7 +16,7 @@
 \begin{document}
 \title{Polkadot Runtime Specification}
 \author{Web3 Foundation}
-\date{February 2020}
+\date{April 2020}
 \maketitle
 
 \section{Motivation}
@@ -24,7 +24,7 @@ Polkadot has a limited time window for block producers to create a block,
 including limitations on block size which can make the selection and execution
 of certain extrinsics too expensive and decelerate the network. The weight
 system introduces a mechanism for block producers to *measure* the expense of
-extrinsics and determine how *heavy* it is. With this mechanism, block producers
+extrinsics and determine how "heavy" it is. With this mechanism, block producers
 can select a set of extrinsics and saturate the block to it's fullest potential
 without exceeding any limitations.
 \newline
@@ -47,8 +47,7 @@ be carefully selected. The benchmarks should use parameters which will most like
 used in regular cases, as intended by the authors, but must also consider worst case
 scenarios and inputs which might decelerate or heavily impact performance of the function.
 The input parameters should be randomized in order to cause various effects in behaviors
-on certain values, such as memory relocations and other results that can impact performance
-and resource devastation.
+on certain values, such as memory relocations and other results that can impact performance.
 
 \subsection{Blockchain State}
 The benchmarks should be performed on blockchain states that already contain a history of
@@ -66,7 +65,7 @@ This section describes the chosen parameters for the Polkadot Runtime functions.
 
 \subsection{Balances}
 
-\textbf{Variables per benchmark}
+\subsubsection*{Variables per benchmark}
 \begin{itemize}
 \item INDEX in 1 to 1000
 \item BALANCE in 2 to 1000
@@ -109,7 +108,7 @@ Benchmark \verb|transfer| with the worst possible conditions:
 \item Balance: BALANCE
 \end{itemize}
 
-\subsection{transfer\_best\_case}
+\subsubsection{transfer\_best\_case}
 
 Benchmark \verb|transfer| with the best possible conditions:
 \begin{itemize}
@@ -146,7 +145,7 @@ Benchmark \verb|transfer| with the best possible conditions:
 \item Balance: BALANCE
 \end{itemize}
 
-\subsection{transfer\_keep\_alive}
+\subsubsection{transfer\_keep\_alive}
 
 Benchmark \verb|transfer_keep_alive| with the worst possible conditions:
 \begin{itemize}
@@ -182,7 +181,7 @@ Benchmark \verb|transfer_keep_alive| with the worst possible conditions:
 \item Balance: BALANCE
 \end{itemize}
 
-\subsection{set\_balance}
+\subsubsection{set\_balance}
 
 Benchmark \verb|set_balance| coming from ROOT account, which results in account creation.
 
@@ -217,7 +216,7 @@ Benchmark \verb|set_balance| coming from ROOT account, which results in account 
 \item Balance: BALANCE
 \end{itemize}
 
-\subsection{set\_balance\_killing}
+\subsubsection{set\_balance\_killing}
 
 Benchmark \verb|set_balance| coming from ROOT account, which results in account termination.
 
@@ -249,6 +248,115 @@ Benchmark \verb|set_balance| coming from ROOT account, which results in account 
 \verb|reserved_value|
 \begin{itemize}
     \item Balance: 0
+\end{itemize}
+
+\subsection{Democracy}
+
+\subsubsection*{Variables per benchmark}
+\begin{itemize}
+\item MAX\_USERS in 1 to 1000
+\item MAX\_REFERENDUMS in 1 to 100
+\item MAX\_PROPOSALS in 1 to 100
+\end{itemize}
+
+\subsubsection{propose}
+
+Benchmark \verb|propose|.
+
+\subsubsection*{Environment preparation}
+\begin{itemize}
+    \item Origin account free balance: max balance
+    \item Create MAX\_PROPOSALS of proposals
+\end{itemize}
+
+\subsubsection*{Function prototype}
+\begin{verbatim}
+    propose(origin, proposal_hash, value)
+\end{verbatim}
+
+\subsubsection*{Properties}
+\verb|origin|
+\begin{itemize}
+    \item Account name: "caller"
+    \item Account index: 0 
+    \item Seed: 0
+\end{itemize}
+\verb|proposal_hash|
+\begin{itemize}
+    \item Hash of proposal: MAY\_PROPOSALS
+\end{itemize}
+\verb|value|
+\begin{itemize}
+    \item Balance: minimum deposit
+\end{itemize}
+
+\subsubsection{second}
+
+Benchmark \verb|second|.
+
+\subsubsection*{Iterations}
+\begin{itemize}
+    \item SECOND\_AMOUNT in 0 to 100
+\end{itemize}
+
+\subsubsection*{Environment preparation}
+\begin{itemize}
+    \item Origin account free balance: max balance
+    \item Create SECOND\_AMOUNT of "seconds"
+\end{itemize}
+
+\subsubsection*{Function prototype}
+\begin{verbatim}
+    second(origin, proposal_index)
+\end{verbatim}
+
+\subsubsection*{Properties}
+\verb|origin|
+\begin{itemize}
+    \item Account name: "caller"
+    \item Account index: 0 
+    \item Seed: 0
+\end{itemize}
+\verb|proposal_index|
+\begin{itemize}
+    \item Index: 0
+\end{itemize}
+
+\subsubsection{vote}
+
+Benchmark \verb|vote|.
+
+\subsubsection*{Iterations}
+\begin{itemize}
+    \item MAX\_REFERENDUMS in 1 to 100
+\end{itemize}
+
+\subsubsection*{Environment preparation}
+\begin{itemize}
+    \item Origin account free balance: max balance
+    \item Create MAY\_REFERENDUMS of referendums
+\end{itemize}
+
+\subsubsection*{Function prototype}
+\begin{verbatim}
+    vote(origin, ref_index, vote)
+\end{verbatim}
+
+\subsubsection*{Properties}
+\verb|origin|
+\begin{itemize}
+    \item Account name: "caller"
+    \item Account index: 0 
+    \item Seed: 0
+\end{itemize}
+\verb|ref_index|
+\begin{itemize}
+    \item Index: 0
+\end{itemize}
+\verb|vote|
+\begin{itemize}
+    \item Aye: true
+    \item Conviction: 
 \end{itemize}
 
 \end{document}
