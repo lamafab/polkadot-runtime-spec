@@ -66,6 +66,12 @@ This section describes the chosen parameters for the Polkadot Runtime functions.
 
 \subsection{Balances}
 
+\textbf{Variables per benchmark}
+\begin{itemize}
+\item INDEX in 1 to 1000
+\item BALANCE in 2 to 1000
+\end{itemize}
+
 \subsubsection{transfer\_worst\_case}
 
 Benchmark \verb|transfer| with the worst possible conditions:
@@ -80,10 +86,10 @@ Function prototype:
     transfer(origin, destination, value)
 \end{verbatim}
 
-\textbf{Variables per benchmark}
+\textbf{Environment preparation}
 \begin{itemize}
-\item INDEX in 1 to 1000
-\item BALANCE in 2 to 1000
+\item Origin account balance: BALANCE
+\item Destination account balance: none
 \end{itemize}
 
 Parameter: \verb|origin|
@@ -91,7 +97,6 @@ Parameter: \verb|origin|
 \item Account name: "caller"
 \item Account index: INDEX
 \item Seed: 0
-\item Balance: BALANCE
 \end{itemize}
 
 Parameter: \verb|destination|
@@ -99,7 +104,6 @@ Parameter: \verb|destination|
 \item Account name: "recipient"
 \item Account index: INDEX
 \item Seed: 0
-\item Balance: None
 \end{itemize}
 
 Parameter: \verb|value|
@@ -122,10 +126,10 @@ Function prototype:
     transfer(origin, destination, value)
 \end{verbatim}
 
-\textbf{Variables per benchmark}
+\textbf{Environment preparation}
 \begin{itemize}
-\item INDEX in 1 to 1000
-\item BALANCE in 2 to 1000
+\item Origin account balance: max balance
+\item Destination account balance: existential deposit
 \end{itemize}
 
 Parameter: \verb|origin|
@@ -133,7 +137,6 @@ Parameter: \verb|origin|
 \item Account name: "caller"
 \item Account index: INDEX
 \item Seed: 0.
-\item Balance: max balance
 \end{itemize}
 
 Parameter: \verb|destination|
@@ -141,13 +144,99 @@ Parameter: \verb|destination|
 \item Account name: "recipient"
 \item Account index: INDEX
 \item Seed: 0
-\item Balance: existential deposit
 \end{itemize}
 
 Parameter: \verb|value|
 \begin{itemize}
 \item Balance: BALANCE
 \end{itemize}
+
+\subsection{transfer\_keep\_alive}
+
+Benchmark \verb|transfer_keep_alive| with the worst possible conditions:
+\begin{itemize}
+\item Destination account is created.
+\end{itemize}
+
+Function prototype:
+
+\begin{verbatim}
+    transfer_keep_alive(origin, destination, value)
+\end{verbatim}
+
+\textbf{Environment preparation}
+\begin{itemize}
+\item Origin account balance: max balance
+\item Destination account balance: none
+\end{itemize}
+
+Parameter: \verb|origin|
+\begin{itemize}
+\item Account name: "caller"
+\item Account index: INDEX
+\item Seed: 0.
+\end{itemize}
+
+Parameter: \verb|destination|
+\begin{itemize}
+\item Account name: "recipient"
+\item Account index: INDEX
+\item Seed: 0
+\end{itemize}
+
+Parameter: \verb|value|
+\begin{itemize}
+\item Balance: BALANCE
+\end{itemize}
+
+\subsection{set\_balance}
+
+Benchmark \verb|set_balance| coming from ROOT account, which always results in account creation.
+
+Function prototype:
+
+\begin{verbatim}
+    set_balance(origin, who, free_value, reserved_value)
+\end{verbatim}
+
+\textbf{Environment preparation}
+\begin{itemize}
+\item Origin account balance: max balance
+\item Destination account balance: none
+\end{itemize}
+
+Parameter: \verb|origin|
+\begin{itemize}
+\item Account name: ROOT
+\end{itemize}
+
+Parameter: \verb|destination|
+\begin{itemize}
+\item Account name: "user"
+\item Account index: INDEX
+\item Seed: 0
+\end{itemize}
+
+Parameter: \verb|free_value|
+\begin{itemize}
+\item Balance: BALANCE
+\end{itemize}
+
+Parameter: \verb|reserved_value|
+\begin{itemize}
+\item Balance: BALANCE
+\end{itemize}
+
+\subsection{set\_balance\_killing}
+
+Benchmark \verb|set_balance| coming from ROOT account, which results in account termination.
+
+Function prototype:
+
+\begin{verbatim}
+    set_balance(origin, who, free_value, reserved_value)
+\end{verbatim}
+
 
 
 \end{document}
