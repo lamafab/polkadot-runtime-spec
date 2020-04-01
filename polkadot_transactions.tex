@@ -62,10 +62,92 @@ or software. Additionally, the benchmarks should be executed multiple machines w
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
 \section{Chosen Parameters for Polkadot}
-This section describes the chosen parameters for the Polkadot Runtime \todo{tag/revision},
-incl
+This section describes the chosen parameters for the Polkadot Runtime functions.\todo{tag/revision}
 
-\subsection{Balances module}
+\subsection{Balances}
+
+\subsubsection{transfer\_worst\_case}
+
+Benchmark \verb|transfer| with the worst possible conditions:
+\begin{itemize}
+\item Transfer will kill the origin account.
+\item Transfer will create the destination account.
+\end{itemize}
+
+Function prototype:
+
+\begin{verbatim}
+    transfer(origin, destination, value)
+\end{verbatim}
+
+\textbf{Variables per benchmark}
+\begin{itemize}
+\item INDEX in 1 to 1000
+\item BALANCE in 2 to 1000
+\end{itemize}
+
+Parameter: \verb|origin|
+\begin{itemize}
+\item Account name: "caller"
+\item Account index: INDEX
+\item Seed: 0
+\item Balance: BALANCE
+\end{itemize}
+
+Parameter: \verb|destination|
+\begin{itemize}
+\item Account name: "recipient"
+\item Account index: INDEX
+\item Seed: 0
+\item Balance: None
+\end{itemize}
+
+Parameter: \verb|value|
+\begin{itemize}
+\item Balance: BALANCE - 1
+\item Unit: 1
+\end{itemize}
+
+\subsection{transfer\_best\_case}
+
+Benchmark \verb|transfer| with the best possible conditions:
+\begin{itemize}
+\item Origin account already exists and will continue to exists.
+\item Destination account already exists and will continue to exists.
+\end{itemize}
+
+Function prototype:
+
+\begin{verbatim}
+    transfer(origin, destination, value)
+\end{verbatim}
+
+\textbf{Variables per benchmark}
+\begin{itemize}
+\item INDEX in 1 to 1000
+\item BALANCE in 2 to 1000
+\end{itemize}
+
+Parameter: \verb|origin|
+\begin{itemize}
+\item Account name: "caller"
+\item Account index: INDEX
+\item Seed: 0.
+\item Balance: max balance
+\end{itemize}
+
+Parameter: \verb|destination|
+\begin{itemize}
+\item Account name: "recipient"
+\item Account index: INDEX
+\item Seed: 0
+\item Balance: existential deposit
+\end{itemize}
+
+Parameter: \verb|value|
+\begin{itemize}
+\item Balance: BALANCE
+\end{itemize}
 
 
 \end{document}
