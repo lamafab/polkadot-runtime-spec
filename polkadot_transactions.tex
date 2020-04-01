@@ -80,36 +80,33 @@ Benchmark \verb|transfer| with the worst possible conditions:
 \item Transfer will create the destination account.
 \end{itemize}
 
-Function prototype:
-
-\begin{verbatim}
-    transfer(origin, destination, value)
-\end{verbatim}
-
-\textbf{Environment preparation}
+\subsubsection*{Environment preparation}
 \begin{itemize}
 \item Origin account balance: BALANCE
 \item Destination account balance: none
 \end{itemize}
 
-Parameter: \verb|origin|
+\subsubsection*{Function prototype}
+\begin{verbatim}
+    transfer(origin, destination, value)
+\end{verbatim}
+
+\subsubsection*{Properties}
+\verb|origin|
 \begin{itemize}
 \item Account name: "caller"
 \item Account index: INDEX
 \item Seed: 0
 \end{itemize}
-
-Parameter: \verb|destination|
+\verb|destination|
 \begin{itemize}
 \item Account name: "recipient"
 \item Account index: INDEX
 \item Seed: 0
 \end{itemize}
-
-Parameter: \verb|value|
+\verb|value|
 \begin{itemize}
-\item Balance: BALANCE - 1
-\item Unit: 1
+\item Balance: BALANCE
 \end{itemize}
 
 \subsection{transfer\_best\_case}
@@ -120,33 +117,31 @@ Benchmark \verb|transfer| with the best possible conditions:
 \item Destination account already exists and will continue to exists.
 \end{itemize}
 
-Function prototype:
-
-\begin{verbatim}
-    transfer(origin, destination, value)
-\end{verbatim}
-
-\textbf{Environment preparation}
+\subsubsection*{Environment preparation}
 \begin{itemize}
 \item Origin account balance: max balance
 \item Destination account balance: existential deposit
 \end{itemize}
 
-Parameter: \verb|origin|
+\subsubsection*{Function prototype}
+\begin{verbatim}
+    transfer(origin, destination, value)
+\end{verbatim}
+
+\subsubsection*{Properties}
+\verb|origin|
 \begin{itemize}
 \item Account name: "caller"
 \item Account index: INDEX
 \item Seed: 0.
 \end{itemize}
-
-Parameter: \verb|destination|
+\verb|destination|
 \begin{itemize}
 \item Account name: "recipient"
 \item Account index: INDEX
 \item Seed: 0
 \end{itemize}
-
-Parameter: \verb|value|
+\verb|value|
 \begin{itemize}
 \item Balance: BALANCE
 \end{itemize}
@@ -158,71 +153,66 @@ Benchmark \verb|transfer_keep_alive| with the worst possible conditions:
 \item Destination account is created.
 \end{itemize}
 
-Function prototype:
-
-\begin{verbatim}
-    transfer_keep_alive(origin, destination, value)
-\end{verbatim}
-
-\textbf{Environment preparation}
+\subsubsection*{Environment preparation}
 \begin{itemize}
 \item Origin account balance: max balance
 \item Destination account balance: none
 \end{itemize}
 
-Parameter: \verb|origin|
+\subsubsection*{Function prototype}
+\begin{verbatim}
+    transfer_keep_alive(origin, destination, value)
+\end{verbatim}
+
+\subsubsection*{Properties}
+\verb|origin|
 \begin{itemize}
 \item Account name: "caller"
 \item Account index: INDEX
 \item Seed: 0.
 \end{itemize}
-
-Parameter: \verb|destination|
+\verb|destination|
 \begin{itemize}
 \item Account name: "recipient"
 \item Account index: INDEX
 \item Seed: 0
 \end{itemize}
-
-Parameter: \verb|value|
+\verb|value|
 \begin{itemize}
 \item Balance: BALANCE
 \end{itemize}
 
 \subsection{set\_balance}
 
-Benchmark \verb|set_balance| coming from ROOT account, which always results in account creation.
+Benchmark \verb|set_balance| coming from ROOT account, which results in account creation.
 
-Function prototype:
-
-\begin{verbatim}
-    set_balance(origin, who, free_value, reserved_value)
-\end{verbatim}
-
-\textbf{Environment preparation}
+\subsubsection*{Environment preparation}
 \begin{itemize}
 \item Origin account balance: max balance
 \item Destination account balance: none
 \end{itemize}
 
-Parameter: \verb|origin|
+\subsubsection*{Function prototype}
+\begin{verbatim}
+    set_balance(origin, destination, free_value, reserved_value)
+\end{verbatim}
+
+\subsubsection*{Properties}
+\verb|origin|
 \begin{itemize}
 \item Account name: ROOT
 \end{itemize}
-
-Parameter: \verb|destination|
+\verb|destination|
 \begin{itemize}
 \item Account name: "user"
 \item Account index: INDEX
 \item Seed: 0
 \end{itemize}
-
-Parameter: \verb|free_value|
+\verb|free_value|
 \begin{itemize}
 \item Balance: BALANCE
 \end{itemize}
-
-Parameter: \verb|reserved_value|
+\verb|reserved_value|
 \begin{itemize}
 \item Balance: BALANCE
 \end{itemize}
@@ -231,12 +221,34 @@ Parameter: \verb|reserved_value|
 
 Benchmark \verb|set_balance| coming from ROOT account, which results in account termination.
 
-Function prototype:
+\subsubsection*{Environment preparation}
+\begin{itemize}
+    \item Origin account free balance: BALANCE
+\end{itemize}
 
+\subsubsection*{Function prototype}
 \begin{verbatim}
     set_balance(origin, who, free_value, reserved_value)
 \end{verbatim}
 
-
+\subsubsection*{Properties}
+\verb|origin|
+\begin{itemize}
+    \item Account name: ROOT
+\end{itemize}
+\verb|destination|
+\begin{itemize}
+    \item Account name: "user"
+    \item Account index: INDEX
+    \item Seed: 0
+\end{itemize}
+\verb|free_value|
+\begin{itemize}
+    \item Balance: 0
+\end{itemize}
+\verb|reserved_value|
+\begin{itemize}
+    \item Balance: 0
+\end{itemize}
 
 \end{document}
