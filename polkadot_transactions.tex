@@ -61,18 +61,47 @@ or software. Additionally, the benchmarks should be executed multiple machines w
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
 \section{Fundamentals}
-Block producers should be able to quickly determine a weight for an extrinsic before executing it.
 Weights are just a numeric value and Runtime functions may use complex structures to express those
-vaules. Therefore, the following points must apply for weight calculations:
+vaules. Therefore, the following points must apply for implementing weight calculations:
 \begin{itemize}
 \item Computations of weights must be determined before execution of that extrinsic.
 \item Due to the limited time window, computations of weights must be done quickly and consume
       few resources itself.
 \item Weights must be self contained and must not require I/O on the chain state. Weights are
       fixed measurements and are based solely on the Runtime function and its parameters.
+\item Weights serve tree functions: measurements used to calculate transaction fees, to prevent
+      the block being filled with too many extrinsics and to avoid extrinsics where its execution
+      takes too long.
 \end{itemize}
 
 \section{Limitations}
+The assigned weights should be relative to each others execution time and "heaviness",
+although weights can be assigned depending on the priorities the chain is supposed to endorse.
+Following limitations must be considered when assigning weights, which vary on the Runtime.
+
+\subsection{Considerable limitations}
+\begin{itemize}
+\item Maximum block length
+\item Maximum block weight
+\item Targeted time per block
+\item Available block ration reserved for normal, none-operational transactions
+\end{itemize}
+
+\subsection{Considerable limitations in Polkadot}
+As of the official Polkadot Runtime, the limitations are set as follows:
+
+\begin{itemize}
+\item Maximum block length: 5 * 1'024 * 1'024
+\item Maximum block weight: 1'000'000'000
+\item Targeted time per block: 6 seconds
+\item Available block ratio: 75%
+\end{itemize}
+
+The values of the assigned weight itself is not relevant. It must only fulfill the requirements
+as noted by the fundamentals and limitations, and can be assigned as the author sees fit.
+As a simple example, consider a maximum block weight of 1'000'000'000, an available ratio of
+75\% and a targeted transaction throughput of 500 transactions, we could assign the weight
+for each transaction at about 1'500'000.
 
 \section{Chosen Parameters for Polkadot}
 This section describes the chosen parameters for the Polkadot Runtime functions.\todo{tag/revision}
