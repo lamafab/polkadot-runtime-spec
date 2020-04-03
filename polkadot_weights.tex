@@ -29,14 +29,14 @@ can select a set of extrinsics and saturate the block to it's fullest potential
 without exceeding any limitations (as described in section \ref{sec:limitations}).
 \newline
 
-Polkadot also introduces a specified block ratio (as described in section \ref{sec:limitations}),
+Polkadot also introduces a specified block ratio (as defined in section \ref{sec:limitations}),
 ensuring that only a certain portion of the total block size gets used for regular extrinsics.
 The remaining space is reserved for critical, operational extrinsics required for the functionality
 by Polkadot itself.
 
 \section{Fundamentals}
 Weights are just a numeric value and Runtime functions may use complex structures to express those
-vaules. Therefore, the following points must apply for implementing weight calculations:
+values. Therefore, the following requirements must apply for implementing weight calculations:
 \begin{itemize}
 \item Computations of weights must be determined before execution of that extrinsic.
 \item Due to the limited time window, computations of weights must be done quickly and consume
@@ -55,7 +55,7 @@ Following limitations must be considered when assigning weights, which vary on t
 
 \subsection{Considerable limitations}
 \begin{itemize}
-\item Maximum block length
+\item Maximum block length (in bytes)
 \item Maximum block weight
 \item Targeted time per block
 \item Available block ration reserved for normal, none-operational transactions
@@ -65,7 +65,7 @@ Following limitations must be considered when assigning weights, which vary on t
 As of the official Polkadot Runtime, the limitations are set as follows:
 
 \begin{itemize}
-\item Maximum block length: 5 * 1'024 * 1'024
+\item Maximum block length: 5 * 1'024 * 1'024 = 5'242'880
 \item Maximum block weight: 1'000'000'000
 \item Targeted time per block: 6 seconds
 \item Available block ratio: 75\%
@@ -86,7 +86,7 @@ collection of input parameters.
 
 \subsection{Parameters}
 The inputs parameters highly vary depending on the Runtime function and must therefore
-be carefully selected. The benchmarks should use parameters which will most likely be
+be carefully selected. The benchmarks should use input parameters which will most likely be
 used in regular cases, as intended by the authors, but must also consider worst case
 scenarios and inputs which might decelerate or heavily impact performance of the function.
 The input parameters should be randomized in order to cause various effects in behaviors
@@ -102,5 +102,41 @@ performance of the Runtime.
 The benchmarks should be executed on clean systems without interference of other processes
 or software. Additionally, the benchmarks should be executed multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
+
+\section{Fees}
+Block producers charge a fee in order to be economically sustainable and always must be covered
+by the sender of the transaction. Polkadot has a flexible mechanism to determine the minimum
+cost to include transactions in a block.
+
+Polkadot fees consists of three parts:
+
+\begin{itemize}
+\item Base fee: a fixed fee that is applied to every transaction and set by the Runtime.
+\item Length fee: a fee that gets multiplied by the length of the transaction, in bytes.
+\item Weight fee: a fee for each, varying Runtime function. Runtime implementers need to
+      implement a conversion mechanism which determines the corresponding currency amount
+      for the calculated weight.
+\end{itemize}
+
+The final fee can be summarized as this:
+\begin{verbatim}
+      fee =
+            base fee +
+            length of transaction * length fee +
+            weight to fee
+\end{verbatim}
+
+\subsection{Fee Multiplier}
+Polkadot can add additional fees to transactions if the network becomes too busy and starts to
+decelerate the system. Those additional fees can create incentive to avoid the production of
+low priority or insignificant transactions. In contrast, those additional fees will decrease if
+the network calms down and it can execute transactions without much difficulties.
+\newline
+
+That adjustment of additional fees is known as the \verb|Fee Multiplier| and its value is defined
+by the Polkadot Runtime. The multiplier works by comparing the saturation of blocks; if the previous 
+block is less saturated than the current block (implying an uptrend), the fees are slightly increased.
+Similarly, if the previous block is more saturated than the current block (implying a downtrend), the
+fees are slightly decreased.
 
 \end{document}
