@@ -66,7 +66,7 @@ vaules. Therefore, the following points must apply for implementing weight calcu
 \begin{itemize}
 \item Computations of weights must be determined before execution of that extrinsic.
 \item Due to the limited time window, computations of weights must be done quickly and consume
-      few resources itself.
+      few resources themselves.
 \item Weights must be self contained and must not require I/O on the chain state. Weights are
       fixed measurements and are based solely on the Runtime function and its parameters.
 \item Weights serve tree functions: measurements used to calculate transaction fees, to prevent
@@ -94,7 +94,7 @@ As of the official Polkadot Runtime, the limitations are set as follows:
 \item Maximum block length: 5 * 1'024 * 1'024
 \item Maximum block weight: 1'000'000'000
 \item Targeted time per block: 6 seconds
-\item Available block ratio: 75%
+\item Available block ratio: 75\%
 \end{itemize}
 
 The values of the assigned weight itself is not relevant. It must only fulfill the requirements
