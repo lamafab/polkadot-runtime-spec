@@ -8,6 +8,7 @@
 }
 \usepackage{color}
 \usepackage{hyperref}
+\usepackage{amsmath}
 \newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
 \newcommand{\SubItem}[1]{
     {\setlength\itemindent{15pt} \item[-] #1}
@@ -65,7 +66,7 @@ Following limitations must be considered when assigning weights, which vary on t
 As of the official Polkadot Runtime, the limitations are set as follows:
 
 \begin{itemize}
-\item Maximum block length: 5 * 1'024 * 1'024 = 5'242'880
+\item Maximum block length: $5 \times 1'024 \times 1'024 = 5'242'880$
 \item Maximum block weight: 1'000'000'000
 \item Targeted time per block: 6 seconds
 \item Available block ratio: 75\%
@@ -102,11 +103,12 @@ performance of the Runtime.
 The benchmarks should be executed on clean systems without interference of other processes
 or software. Additionally, the benchmarks should be executed multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
+\newpage
 
 \section{Fees}
-Block producers charge a fee in order to be economically sustainable and always must be covered
-by the sender of the transaction. Polkadot has a flexible mechanism to determine the minimum
-cost to include transactions in a block.
+Block producers charge a fee in order to be economically sustainable. That fee must always
+be covered by the sender of the transaction. Polkadot has a flexible mechanism to determine
+the minimum cost to include transactions in a block.
 
 \subsection{Fee Calculation}
 Polkadot fees consists of three parts:
@@ -119,48 +121,50 @@ Polkadot fees consists of three parts:
       for the calculated weight.
 \end{itemize}
 
-The final fee can be summarized as this:
-\begin{verbatim}
-      fee =
-            base fee +
-            length of transaction in bytes * length fee +
-            weight to fee
-\end{verbatim}
+The final fee can be summarized as:
+\begin{eqnarray*}
+\lefteqn{fee = base\ fee}\\
+      &&{} + length\ of\ transaction\ in\ bytes \times length\ fee\\
+      &&{} + weight\ to\ fee\\
+\end{eqnarray*}
 
 \subsection{Definitions in Polkadot}
 The Polkadot Runtime defines the following values:
 \begin{itemize}
 \item Base fee: 100 uDOTs
-\item Lenght fee: 0.1 uDOTs
+\item Length fee: 0.1 uDOTs
 \item Weight to fee conversion:
-      \begin{verbatim}
-            weight * (100 uDOTs / 0.1 uDOTs)
-      \end{verbatim}
+      $$
+            weight\ fee = weight \times (100\ uDOTs \div (10 \times 10'000\ uDOT))
+      $$
+      A weight of 10'000 (the smallest non-zero weight) is mapped to $\frac{1}{10}$ 100 uDOT.
+      \newline
       This fee will never exceed $1.701411835 \times 10^{32}$ uDOTs.
 \end{itemize}
 
 \subsection{Fee Multiplier}
-Polkadot can add additional fees to transactions if the network becomes too busy and starts to
-decelerate the system. Those additional fees can create incentive to avoid the production of
+Polkadot can add a additional fee to transactions if the network becomes too busy and starts to
+decelerate the system. This fees can create incentive to avoid the production of
 low priority or insignificant transactions. In contrast, those additional fees will decrease if
 the network calms down and it can execute transactions without much difficulties.
+\newline
 
-\subsubsection{Next Fee Multiplier}
-That adjustment of additional fees is known as the \verb|Fee Multiplier| and its value is defined
+That additional fee is known as the \verb|Fee Multiplier| and its value is defined
 by the Polkadot Runtime. The multiplier works by comparing the saturation of blocks; if the previous 
-block is less saturated than the current block (implying an uptrend), the fees are slightly increased.
+block is less saturated than the current block (implying an uptrend), the fee is slightly increased.
 Similarly, if the previous block is more saturated than the current block (implying a downtrend), the
-fees are slightly decreased.
+fee is slightly decreased.
 \newline
 
 The final fee is calculated as:
 \begin{verbatim}
-      final_fee = fee * Fee Multiplier
+      final fee = fee * Fee Multiplier
 \end{verbatim}
+\newpage
 
 \subsubsection{Update Multiplier}
-The \verb|Update Multiplier| defines how the multiplier can change. The Polkadot Runtime updates the 
-multiplier according the following formula:
+The \verb|Update Multiplier| defines how the multiplier can change. The Polkadot Runtime internally
+updates the multiplier according the following formula:
 
 \begin{verbatim}
 diff = (target_weight - previous_block_weight)
@@ -168,7 +172,7 @@ v = 0.00004
 next_weight = weight * (1 + (v . diff) + (v . diff)^2 / 2)
 \end{verbatim}
 
-Polkadot defines the \verb|target_weight| at 0.25 (25\%). More information about this algorithm is described
+Polkadot defines the \verb|target_weight| as 0.25 (25\%). More information about this algorithm is described
 in the Web3 Foundation research paper: \url{https://research.web3.foundation/en/latest/polkadot/Token Economics/#relay-chain-transaction-fees}.
 
 \end{document}
