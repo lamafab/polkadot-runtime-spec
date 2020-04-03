@@ -108,6 +108,7 @@ Block producers charge a fee in order to be economically sustainable and always 
 by the sender of the transaction. Polkadot has a flexible mechanism to determine the minimum
 cost to include transactions in a block.
 
+\subsection{Fee Calculation}
 Polkadot fees consists of three parts:
 
 \begin{itemize}
@@ -122,9 +123,21 @@ The final fee can be summarized as this:
 \begin{verbatim}
       fee =
             base fee +
-            length of transaction * length fee +
+            length of transaction in bytes * length fee +
             weight to fee
 \end{verbatim}
+
+\subsection{Definitions in Polkadot}
+The Polkadot Runtime defines the following values:
+\begin{itemize}
+\item Base fee: 100 uDOTs
+\item Lenght fee: 0.1 uDOTs
+\item Weight to fee conversion:
+      \begin{verbatim}
+            weight * (100 uDOTs / 0.1 uDOTs)
+      \end{verbatim}
+      This fee will never exceed $1.701411835 \times 10^{32}$ uDOTs.
+\end{itemize}
 
 \subsection{Fee Multiplier}
 Polkadot can add additional fees to transactions if the network becomes too busy and starts to
@@ -138,6 +151,7 @@ by the Polkadot Runtime. The multiplier works by comparing the saturation of blo
 block is less saturated than the current block (implying an uptrend), the fees are slightly increased.
 Similarly, if the previous block is more saturated than the current block (implying a downtrend), the
 fees are slightly decreased.
+\newline
 
 The final fee is calculated as:
 \begin{verbatim}
