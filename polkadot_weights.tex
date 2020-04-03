@@ -1,5 +1,4 @@
 \documentclass[11pt,a4paper]{article}
-\usepackage{tabulary}
 \usepackage{geometry}
 \geometry{
     a4paper,
@@ -8,6 +7,7 @@
     top=20mm,
 }
 \usepackage{color}
+\usepackage{hyperref}
 \newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
 \newcommand{\SubItem}[1]{
     {\setlength\itemindent{15pt} \item[-] #1}
@@ -26,10 +26,10 @@ of certain extrinsics too expensive and decelerate the network. The weight
 system introduces a mechanism for block producers to measure the expense of
 extrinsics and determine how "heavy" it is. With this mechanism, block producers
 can select a set of extrinsics and saturate the block to it's fullest potential
-without exceeding any limitations.
+without exceeding any limitations (section \ref{sec:limitations}).
 \newline
 
-Polkadot also introduces a specified block ratio, ensuring that only a certain
+Polkadot also introduces a specified block ratio (section \ref{sec:limitations}), ensuring that only a certain
 portion of the total block size gets used for regular extrinsics. The remaining
 space is reserved for critical, operational extrinsics required for the functionality 
 by Polkadot itself.
@@ -48,7 +48,7 @@ vaules. Therefore, the following points must apply for implementing weight calcu
       takes too long.
 \end{itemize}
 
-\section{Limitations}
+\section{Limitations}\label{sec:limitations}
 The assigned weights should be relative to each others execution time and "heaviness",
 although weights can be assigned depending on the priorities the chain is supposed to endorse.
 Following limitations must be considered when assigning weights, which vary on the Runtime.
