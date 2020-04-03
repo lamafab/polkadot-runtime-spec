@@ -7,7 +7,7 @@
     top=20mm,
 }
 \usepackage{color}
-\usepackage{hyperref}
+\PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
 \usepackage{amsmath}
 \newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
 \newcommand{\SubItem}[1]{
@@ -166,13 +166,13 @@ The final fee is calculated as:
 The \verb|Update Multiplier| defines how the multiplier can change. The Polkadot Runtime internally
 updates the multiplier according the following formula:
 
-\begin{verbatim}
-diff = (target_weight - previous_block_weight)
-v = 0.00004
-next_weight = weight * (1 + (v . diff) + (v . diff)^2 / 2)
-\end{verbatim}
+\begin{eqnarray*}
+diff &=& (target\ weight - previous\ block\ weight)\\
+v &=& 0.00004\\
+next\ weight &=& weight \times (1 + (v \times diff) + (v \times diff)^2 / 2)\\
+\end{eqnarray*}
 
 Polkadot defines the \verb|target_weight| as 0.25 (25\%). More information about this algorithm is described
-in the Web3 Foundation research paper: \url{https://research.web3.foundation/en/latest/polkadot/Token Economics/#relay-chain-transaction-fees}.
+in the Web3 Foundation research paper: \url{https://research.web3.foundation/en/latest/polkadot/Token%20Economics.html#relay-chain-transaction-fees-and-per-block-transaction-limits}.
 
 \end{document}
