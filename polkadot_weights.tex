@@ -34,32 +34,6 @@ portion of the total block size gets used for regular extrinsics. The remaining
 space is reserved for critical, operational extrinsics required for the functionality 
 by Polkadot itself.
 
-\section{Weight Assignment}
-Assigning weights based on theoretical performance such as big O notation proves to be
-unreliable and too complex due to imprecision in back-end systems, internal communication
-within the Runtime and design choices in the software. Therefore, all available Runtime 
-functions, which create and execute extrinsics, have to be benchmarked with a large
-collection of input parameters.
-
-\subsection{Parameters}
-The inputs parameters highly vary depending on the Runtime function and must therefore
-be carefully selected. The benchmarks should use parameters which will most likely be
-used in regular cases, as intended by the authors, but must also consider worst case
-scenarios and inputs which might decelerate or heavily impact performance of the function.
-The input parameters should be randomized in order to cause various effects in behaviors
-on certain values, such as memory relocations and other results that can impact performance.
-
-\subsection{Blockchain State}
-The benchmarks should be performed on blockchain states that already contain a history of
-extrinsics and storage changes. Runtime functions that required read/writing on structures
-such as Tries will therefore produce more realistic results that will reflect the real-world
-performance of the Runtime.
-
-\subsection{Environment}
-The benchmarks should be executed on clean systems without interference of other processes
-or software. Additionally, the benchmarks should be executed multiple machines with different
-system resources, such as CPU performance, CPU cores, RAM and storage speed.
-
 \section{Fundamentals}
 Weights are just a numeric value and Runtime functions may use complex structures to express those
 vaules. Therefore, the following points must apply for implementing weight calculations:
@@ -102,5 +76,31 @@ as noted by the fundamentals and limitations, and can be assigned as the author 
 As a simple example, consider a maximum block weight of 1'000'000'000, an available ratio of
 75\% and a targeted transaction throughput of 500 transactions, we could assign the weight
 for each transaction at about 1'500'000.
+
+\section{Weight Assignment}
+Assigning weights based on theoretical performance such as big O notation proves to be
+unreliable and too complex due to imprecision in back-end systems, internal communication
+within the Runtime and design choices in the software. Therefore, all available Runtime 
+functions, which create and execute extrinsics, have to be benchmarked with a large
+collection of input parameters.
+
+\subsection{Parameters}
+The inputs parameters highly vary depending on the Runtime function and must therefore
+be carefully selected. The benchmarks should use parameters which will most likely be
+used in regular cases, as intended by the authors, but must also consider worst case
+scenarios and inputs which might decelerate or heavily impact performance of the function.
+The input parameters should be randomized in order to cause various effects in behaviors
+on certain values, such as memory relocations and other results that can impact performance.
+
+\subsection{Blockchain State}
+The benchmarks should be performed on blockchain states that already contain a history of
+extrinsics and storage changes. Runtime functions that required read/writing on structures
+such as Tries will therefore produce more realistic results that will reflect the real-world
+performance of the Runtime.
+
+\subsection{Environment}
+The benchmarks should be executed on clean systems without interference of other processes
+or software. Additionally, the benchmarks should be executed multiple machines with different
+system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
 \end{document}
