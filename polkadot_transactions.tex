@@ -14,7 +14,7 @@
 }
 
 \begin{document}
-\title{Polkadot Runtime Specification}
+\title{Polkadot Module Benchmarking}
 \author{Web3 Foundation}
 \date{April 2020}
 \maketitle
@@ -23,7 +23,7 @@
 Polkadot has a limited time window for block producers to create a block,
 including limitations on block size which can make the selection and execution
 of certain extrinsics too expensive and decelerate the network. The weight
-system introduces a mechanism for block producers to *measure* the expense of
+system introduces a mechanism for block producers to measure the expense of
 extrinsics and determine how "heavy" it is. With this mechanism, block producers
 can select a set of extrinsics and saturate the block to it's fullest potential
 without exceeding any limitations.
@@ -59,6 +59,20 @@ performance of the Runtime.
 The benchmarks should be executed on clean systems without interference of other processes
 or software. Additionally, the benchmarks should be executed multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
+
+\section{Fundamentals}
+Block producers should be able to quickly determine a weight for an extrinsic before executing it.
+Weights are just a numeric value and Runtime functions may use complex structures to express those
+vaules. Therefore, the following points must apply for weight calculations:
+\begin{itemize}
+\item Computations of weights must be determined before execution of that extrinsic.
+\item Due to the limited time window, computations of weights must be done quickly and consume
+      few resources itself.
+\item Weights must be self contained and must not require I/O on the chain state. Weights are
+      fixed measurements and are based solely on the Runtime function and its parameters.
+\end{itemize}
+
+\section{Limitations}
 
 \section{Chosen Parameters for Polkadot}
 This section describes the chosen parameters for the Polkadot Runtime functions.\todo{tag/revision}
