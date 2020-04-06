@@ -77,6 +77,9 @@ as noted by the fundamentals and limitations, and can be assigned as the author 
 As a simple example, consider a maximum block weight of 1'000'000'000, an available ratio of
 75\% and a targeted transaction throughput of 500 transactions, we could assign the weight
 for each transaction at about 1'500'000.
+\newline
+
+Do note that the smallest, non-zero weight in Polkadot is set at 10'000.
 
 \section{Weight Assignment}
 Assigning weights based on theoretical performance such as big O notation proves to be
@@ -135,11 +138,11 @@ The Polkadot Runtime defines the following values:
 \item Length fee: 0.1 uDOTs
 \item Weight to fee conversion:
       $$
-            weight\ fee = weight \times (100\ uDOTs \div (10 \times 10'000\ uDOT))
+            weight\ fee = weight \times (100\ uDOTs \div (10 \times 10'000))
       $$
-      A weight of 10'000 (the smallest non-zero weight) is mapped to $\frac{1}{10}$ 100 uDOT.
+      A weight of 10'000 (the smallest non-zero weight) is mapped to $\frac{1}{10}$ of 100 uDOT.
       \newline
-      This fee will never exceed $1.701411835 \times 10^{32}$ uDOTs.
+      This fee will never exceed the max size of an unsigned 128 bit integer.
 \end{itemize}
 
 \subsection{Fee Multiplier}
@@ -157,14 +160,14 @@ fee is slightly decreased.
 \newline
 
 The final fee is calculated as:
-\begin{verbatim}
-      final fee = fee * Fee Multiplier
-\end{verbatim}
+$$
+      final\ fee = fee \times Fee\ Multiplier
+$$
 \newpage
 
 \subsubsection{Update Multiplier}
 The \verb|Update Multiplier| defines how the multiplier can change. The Polkadot Runtime internally
-updates the multiplier according the following formula:
+updates the multiplier after each block according the following formula:
 
 \begin{eqnarray*}
 diff &=& (target\ weight - previous\ block\ weight)\\
