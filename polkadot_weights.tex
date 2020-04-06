@@ -102,12 +102,12 @@ of inputs to benchmark, spanning from very small values (or none, if the Runtime
 allows it) to large values which will most likely exceed the expected usage of that function.
 As an example, considering a Runtime function which transfers balances to one or multiple
 accounts, one could select a range spanning from very small balances being sent from one to
-thousands of accounts, to very large balances being sent from one to thousands of accounts.
+hundreds of accounts, to very large balances being sent from one to hundreds of accounts.
 \newline
 
 The benchmarks should run individual executions within that range, where the chosen parameters
 should give insight on an average execution time and resource cost. Selecting imprecise parameters
-or too extreme ranges might give an inaccurate execution cost of the function as it will be used in production.
+or too extreme ranges might indicate an inaccurate average of the function as it will be used in production.
 Therefore, when a range of input parameters gets benchmarked, the result of each individual parameter
 should be recorded and ideally visualized. The author should then select the most probable average
 execution time, basing that decision on the limitations of the Runtime and expected usage of the network.
