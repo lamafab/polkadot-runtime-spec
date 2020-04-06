@@ -101,13 +101,13 @@ It's not possible to benchmark every single value. However, one should select a 
 of inputs to benchmark, spanning from very small values (or none, if the Runtime function
 allows it) to large values which will most likely exceed the expected usage of that function.
 As an example, considering a Runtime function which transfers balances to one or multiple
-accounts, one could select a range of very small balances being sent from one to thousands of
-accounts, to very large balances being sent from one to thousands of accounts.
+accounts, one could select a range spanning from very small balances being sent from one to
+thousands of accounts, to very large balances being sent from one to thousands of accounts.
 \newline
 
 The benchmarks should run individual executions within that range, where the chosen parameters
 should give insight on an average execution time and resource cost. Selecting imprecise parameters
-or too extreme ranges might give an inaccurate execution cost of the function as being used in production.
+or too extreme ranges might give an inaccurate execution cost of the function as it will be used in production.
 Therefore, when a range of input parameters gets benchmarked, the result of each individual parameter
 should be recorded and ideally visualized. The author should then select the most probable average
 execution time, basing that decision on the limitations of the Runtime and expected usage of the network.
@@ -115,11 +115,11 @@ execution time, basing that decision on the limitations of the Runtime and expec
 
 Additionally, given the distinction between theory and practice, the author reserves the right
 to make adjustments to the input parameters and assigned weights according to observed behavior
-of the actual, real world network.
+of the actual, real-world network.
 
 \subsection{Blockchain State}
-The benchmarks should be performed on blockchain states that already contain a history of
-extrinsics and storage changes. Runtime functions that required read/writing on structures
+The benchmarks should be performed on blockchain states that already polluted and contain a history of
+extrinsics and storage changes. Runtime functions that require read/writing on structures
 such as Tries will therefore produce more realistic results that will reflect the real-world
 performance of the Runtime.
 
@@ -127,7 +127,6 @@ performance of the Runtime.
 The benchmarks should be executed on clean systems without interference of other processes
 or software. Additionally, the benchmarks should be executed multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
-\newpage
 
 \section{Fees}
 Block producers charge a fee in order to be economically sustainable. That fee must always
@@ -184,7 +183,6 @@ The final fee is calculated as:
 $$
       final\ fee = fee \times Fee\ Multiplier
 $$
-\newpage
 
 \subsubsection{Update Multiplier}
 The \verb|Update Multiplier| defines how the multiplier can change. The Polkadot Runtime internally
