@@ -44,7 +44,7 @@ values. Therefore, the following requirements must apply for implementing weight
       few resources themselves.
 \item Weights must be self contained and must not require I/O on the chain state. Weights are
       fixed measurements and are based solely on the Runtime function and its parameters.
-\item Weights serve tree functions: measurements used to calculate transaction fees, to prevent
+\item Weights serve three functions: measurements used to calculate transaction fees, to prevent
       the block being filled with too many extrinsics and to avoid extrinsics where its execution
       takes too long.
 \end{itemize}
@@ -94,7 +94,7 @@ be carefully selected. The benchmarks should use input parameters which will mos
 used in regular cases, as intended by the authors, but must also consider worst case
 scenarios and inputs which might decelerate or heavily impact performance of the function.
 The input parameters should be randomized in order to cause various effects in behaviors
-on certain values, such as memory relocations and other results that can impact performance.
+on certain values, such as memory relocations and other outcomes that can impact performance.
 \newline
 
 It's not possible to benchmark every single value. However, one should select a range
