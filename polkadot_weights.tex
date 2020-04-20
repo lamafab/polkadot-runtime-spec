@@ -1,0 +1,200 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{geometry}
+\geometry{
+    a4paper,
+    total={170mm,257mm},
+    left=20mm,
+    top=20mm,
+}
+\usepackage{color}
+\PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
+\usepackage{amsmath}
+\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
+\newcommand{\SubItem}[1]{
+    {\setlength\itemindent{15pt} \item[-] #1}
+}
+
+\begin{document}
+\title{Polkadot Weights}
+\author{Web3 Foundation}
+\date{April 2020}
+\maketitle
+
+\section{Motivation}
+Polkadot has a limited time window for block producers to create a block,
+including limitations on block size which can make the selection and execution
+of certain extrinsics too expensive and decelerate the network. The weight
+system introduces a mechanism for block producers to measure the expense of
+extrinsics and determine how "heavy" it is. With this mechanism, block producers
+can select a set of extrinsics and saturate the block to it's fullest potential
+without exceeding any limitations (as described in section \ref{sec:limitations}).
+\newline
+
+Polkadot also introduces a specified block ratio (as defined in section \ref{sec:limitations}),
+ensuring that only a certain portion of the total block size gets used for regular extrinsics.
+The remaining space is reserved for critical, operational extrinsics required for the functionality
+by Polkadot itself.
+
+\section{Fundamentals}
+Weights are just a numeric value and Runtime functions may use complex structures to express those
+values. Therefore, the following requirements must apply for implementing weight calculations:
+\begin{itemize}
+\item Computations of weights must be determined before execution of that extrinsic.
+\item Due to the limited time window, computations of weights must be done quickly and consume
+      few resources themselves.
+\item Weights must be self contained and must not require I/O on the chain state. Weights are
+      fixed measurements and are based solely on the Runtime function and its parameters.
+\item Weights serve three functions: measurements used to calculate transaction fees, to prevent
+      the block being filled with too many extrinsics and to avoid extrinsics where its execution
+      takes too long.
+\end{itemize}
+
+\section{Limitations}\label{sec:limitations}
+The assigned weights should be relative to each others execution time and "heaviness",
+although weights can be assigned depending on the priorities the chain is supposed to endorse.
+Following limitations must be considered when assigning weights, which vary on the Runtime.
+
+\subsection{Considerable limitations}
+\begin{itemize}
+\item Maximum block length
+\item Maximum block weight
+\item Targeted time per block
+\item Available block ration reserved for normal, none-operational transactions
+\end{itemize}
+
+\subsection{Considerable limitations in Polkadot}
+As of the official Polkadot Runtime, the limitations are set as follows:
+
+\begin{itemize}
+\item Maximum block length: $5 \times 1'024 \times 1'024 = 5'242'880$ Bytes
+\item Maximum block weight: 1'000'000'000
+\item Targeted time per block: 6 seconds
+\item Available block ratio: 75\%
+\end{itemize}
+
+The values of the assigned weight itself is not relevant. It must only fulfill the requirements
+as noted by the fundamentals and limitations, and can be assigned as the author sees fit.
+As a simple example, consider a maximum block weight of 1'000'000'000, an available ratio of
+75\% and a targeted transaction throughput of 500 transactions, we could assign the weight
+for each transaction at about 1'500'000.
+\newline
+
+Do note that the smallest, non-zero weight in Polkadot is set at 10'000.
+
+\section{Weight Assignment}
+Assigning weights based on theoretical performance such as big O notation proves to be
+unreliable and too complex due to imprecision in back-end systems, internal communication
+within the Runtime and design choices in the software. Therefore, all available Runtime 
+functions, which create and execute extrinsics, have to be benchmarked with a large
+collection of input parameters.
+
+\subsection{Parameters}
+The inputs parameters highly vary depending on the Runtime function and must therefore
+be carefully selected. The benchmarks should use input parameters which will most likely be
+used in regular cases, as intended by the authors, but must also consider worst case
+scenarios and inputs which might decelerate or heavily impact performance of the function.
+The input parameters should be randomized in order to cause various effects in behaviors
+on certain values, such as memory relocations and other outcomes that can impact performance.
+\newline
+
+It's not possible to benchmark every single value. However, one should select a range
+of inputs to benchmark, spanning from very small values (or none, if the Runtime function
+allows it) to large values which will most likely exceed the expected usage of that function.
+As an example, considering a Runtime function which transfers balances to one or multiple
+accounts, one could select a range spanning from very small balances being sent from one to
+hundreds of accounts, to very large balances being sent from one to hundreds of accounts.
+\newline
+
+The benchmarks should run individual executions within that range, where the chosen parameters
+should give insight on an average execution time and resource cost. Selecting imprecise parameters
+or too extreme ranges might indicate an inaccurate average of the function as it will be used in production.
+Therefore, when a range of input parameters gets benchmarked, the result of each individual parameter
+should be recorded and ideally visualized. The author should then decide on the most probable average
+execution time, basing that decision on the limitations of the Runtime and expected usage of the network.
+\newline
+
+Additionally, given the distinction between theory and practice, the author reserves the right
+to make adjustments to the input parameters and assigned weights according to observed behavior
+of the actual, real-world network.
+
+\subsection{Blockchain State}
+The benchmarks should be performed on blockchain states that already polluted and contain a history of
+extrinsics and storage changes. Runtime functions that require read/writing on structures
+such as Tries will therefore produce more realistic results that will reflect the real-world
+performance of the Runtime.
+
+\subsection{Environment}
+The benchmarks should be executed on clean systems without interference of other processes
+or software. Additionally, the benchmarks should be executed multiple machines with different
+system resources, such as CPU performance, CPU cores, RAM and storage speed.
+
+\section{Fees}
+Block producers charge a fee in order to be economically sustainable. That fee must always
+be covered by the sender of the transaction. Polkadot has a flexible mechanism to determine
+the minimum cost to include transactions in a block.
+
+\subsection{Fee Calculation}
+Polkadot fees consists of three parts:
+
+\begin{itemize}
+\item Base fee: a fixed fee that is applied to every transaction and set by the Runtime.
+\item Length fee: a fee that gets multiplied by the length of the transaction, in bytes.
+\item Weight fee: a fee for each, varying Runtime function. Runtime implementers need to
+      implement a conversion mechanism which determines the corresponding currency amount
+      for the calculated weight.
+\end{itemize}
+
+The final fee can be summarized as:
+\begin{eqnarray*}
+\lefteqn{fee = base\ fee}\\
+      &&{} + length\ of\ transaction\ in\ bytes \times length\ fee\\
+      &&{} + weight\ to\ fee\\
+\end{eqnarray*}
+
+\subsection{Definitions in Polkadot}
+The Polkadot Runtime defines the following values:
+\begin{itemize}
+\item Base fee: 100 uDOTs
+\item Length fee: 0.1 uDOTs
+\item Weight to fee conversion:
+      $$
+            weight\ fee = weight \times (100\ uDOTs \div (10 \times 10'000))
+      $$
+      A weight of 10'000 (the smallest non-zero weight) is mapped to $\frac{1}{10}$ of 100 uDOT.
+      \newline
+      This fee will never exceed the max size of an unsigned 128 bit integer.
+\end{itemize}
+
+\subsection{Fee Multiplier}
+Polkadot can add a additional fee to transactions if the network becomes too busy and starts to
+decelerate the system. This fees can create incentive to avoid the production of
+low priority or insignificant transactions. In contrast, those additional fees will decrease if
+the network calms down and it can execute transactions without much difficulties.
+\newline
+
+That additional fee is known as the \verb|Fee Multiplier| and its value is defined
+by the Polkadot Runtime. The multiplier works by comparing the saturation of blocks; if the previous 
+block is less saturated than the current block (implying an uptrend), the fee is slightly increased.
+Similarly, if the previous block is more saturated than the current block (implying a downtrend), the
+fee is slightly decreased.
+\newline
+
+The final fee is calculated as:
+$$
+      final\ fee = fee \times Fee\ Multiplier
+$$
+
+\subsubsection{Update Multiplier}
+The \verb|Update Multiplier| defines how the multiplier can change. The Polkadot Runtime internally
+updates the multiplier after each block according the following formula:
+
+\begin{eqnarray*}
+diff &=& (target\ weight - previous\ block\ weight)\\
+v &=& 0.00004\\
+next\ weight &=& weight \times (1 + (v \times diff) + (v \times diff)^2 / 2)\\
+\end{eqnarray*}
+
+Polkadot defines the \verb|target_weight| as 0.25 (25\%). More information about this algorithm is described
+in the Web3 Foundation research paper: \url{https://research.web3.foundation/en/latest/polkadot/Token%20Economics.html#relay-chain-transaction-fees-and-per-block-transaction-limits}.
+
+\end{document}
