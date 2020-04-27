@@ -9,6 +9,7 @@
 \usepackage{color}
 \PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
 \usepackage{amsmath}
+\usepackage[ruled,vlined]{algorithm2e}
 \setlength\parindent{0pt}
 \newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
 \newcommand{\SubItem}[1]{
@@ -106,7 +107,7 @@ accounts, one could select a range spanning from very small balances being sent 
 hundreds of accounts, to very large balances being sent from one to hundreds of accounts.
 \newline
 
-The benchmarks should run individual executions within that range, where the chosen parameters
+The benchmarks should run individual executions/iterations within that range, where the chosen parameters
 should give insight on an average execution time and resource cost. Selecting imprecise parameters
 or too extreme ranges might indicate an inaccurate average of the function as it will be used in production.
 Therefore, when a range of input parameters gets benchmarked, the result of each individual parameter
@@ -142,23 +143,62 @@ in the Polkadot Runtime. The benchmark is designed to measure the worst possible
 The following parameters are selected:
 
 \begin{center}
-\begin{tabular}{ l|r l l }
-\textbf{Type} && \textbf{From} & \textbf{To} \\
-\hline
-Account index & \verb|index| in... & 1 & 1000 \\
-Sender balance & \verb|balance| in... & 2 & 1000 \\
-Transfer amount & \verb|transfer| in... & 2 & 1000 \\
-\end{tabular}
+  \begin{tabular}{ l|r l l l }
+    \textbf{Type} && \textbf{From} & \textbf{To} & \textbf{Description}\\
+    \hline
+    Account index & \verb|index| in... & 1 & 1000 & Used as a seed for account creation \\
+    Sender balance & \verb|balance| in... & 2 & 1000 & Initial starting balance \\
+    Transfer amount & \verb|amount| in... & 2 & 1000 & Amount of balance to transfer\\
+  \end{tabular}
 \end{center}
 
 The benchmarks select the parameters within the range for each iteration:
 
 \begin{itemize}
-\item \verb|index|: 1, \verb|balance|: 2, \verb|transfer|: 2
-\item \verb|index|: 2, \verb|balance|: 3, \verb|transfer|: 3
-\item \verb|index|: 3, \verb|balance|: 4, \verb|transfer|: 4
-\item ...
+  \item \verb|index|: 1, \verb|balance|: 2, \verb|amount|: 2
+  \item \verb|index|: 2, \verb|balance|: 3, \verb|amount|: 3
+  \item \verb|index|: 3, \verb|balance|: 4, \verb|amount|: 4
+  \item ...
 \end{itemize}
+
+The parameters itself do not influence the benchmarks that heavily and the two worst conditions
+must be handled by the implemented benchmarking tool. Therefore, the following algorithm is executed
+for each iteration.
+\newline
+
+\SetKw{KwInit}{Init:}
+\SetKw{KwBy}{increment by}
+\SetKwProg{Fn}{Function}{ is}{end}
+
+\begin{algorithm}[H]
+  \caption{Run multiple benchmark iterations for $transfer$ Runtime function}
+  \SetAlgoLined
+  \KwResult{A collection of time measurements of all benchmark iterations}
+  \BlankLine
+  \KwInit{collection = \{\}\;}
+  \Fn{\textsc{Main}}{
+    $balance = 1'000$\;
+    \For{$index\gets1$ \KwTo $1'000$ \KwBy $1$}{
+      $time \leftarrow$ \textsc{Run-Benchmark($index$, $balance$)}\;
+      \textsc{Add-To($collection$, $time$)}\;
+    }
+    \BlankLine
+    $index = 1'000$\;
+    \For{$balance\gets2$ \KwTo $1'000$ \KwBy $1$}{
+      $time \leftarrow$ \textsc{Run-Benchmark($index$, $balance$)}\;
+      \textsc{Add-To($collection$, $time$)}\;
+    }
+  }
+  \BlankLine
+  \Fn{\textsc{Run-Benchmark($index$, $balance$)}}{
+    $Sender \leftarrow$ \textsc{Create-User(\textit{"caller"}, $index$)}\;
+    $Recipient \leftarrow$ \textsc{Create-User(\textit{"recipient"}, $index$)}\;
+    \textsc{Set-Balance($Sender$, $balance$)}\;
+    \BlankLine
+    $time \leftarrow$\textsc{Timer(Transfer-Balance($Sender$, $Recipient$, $balance$))}\;
+    \Return time
+  }
+\end{algorithm}
 
 \section{Fees}
 Block producers charge a fee in order to be economically sustainable. That fee must always
