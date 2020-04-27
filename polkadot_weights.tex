@@ -147,30 +147,38 @@ The following parameters are selected:
     \textbf{Type} && \textbf{From} & \textbf{To} & \textbf{Description}\\
     \hline
     Account index & \verb|index| in... & 1 & 1000 & Used as a seed for account creation \\
-    Sender balance & \verb|balance| in... & 2 & 1000 & Initial starting balance \\
-    Transfer amount & \verb|amount| in... & 2 & 1000 & Amount of balance to transfer\\
+    Balance & \verb|balance| in... & 2 & 1000 & Sender balance and transfer amount \\
   \end{tabular}
 \end{center}
 
-The benchmarks select the parameters within the range for each iteration:
+Executing a benchmark for each balance increment within the balance range for each index increment
+within the index range will generate too many variants ($1000 \times 999$) and highly increase
+execution time. Therefore, this benchmark is configured to first set the balance at value 1'000
+and then to iterate from 1 to 1'000 for the index value. Once the index value reaches 1'000, the
+balance value will reset to 2 and iterate to 1'000 (see algorithm \ref{sec:algo-benchmark-transfer}):
 
 \begin{itemize}
-  \item \verb|index|: 1, \verb|balance|: 2, \verb|amount|: 2
-  \item \verb|index|: 2, \verb|balance|: 3, \verb|amount|: 3
-  \item \verb|index|: 3, \verb|balance|: 4, \verb|amount|: 4
+  \item \verb|index|: 1, \verb|balance|: 1000
+  \item \verb|index|: 2, \verb|balance|: 1000
+  \item \verb|index|: 3, \verb|balance|: 1000
+  \item ...
+  \item \verb|index|: 1000, \verb|balance|: 1000
+  \item \verb|index|: 1000, \verb|balance|: 2
+  \item \verb|index|: 1000, \verb|balance|: 3
+  \item \verb|index|: 1000, \verb|balance|: 4
   \item ...
 \end{itemize}
 
-The parameters itself do not influence the benchmarks that heavily and the two worst conditions
-must be handled by the implemented benchmarking tool. Therefore, the following algorithm is executed
-for each iteration.
+The parameters itself do not influence or trigger the two worst conditions and must be handled by
+the implemented benchmarking tool. The $transfer$ benchmark is implemented as defined in algorithm
+\ref{sec:algo-benchmark-transfer}.
 \newline
 
 \SetKw{KwInit}{Init:}
 \SetKw{KwBy}{increment by}
 \SetKwProg{Fn}{Function}{ is}{end}
 
-\begin{algorithm}[H]
+\begin{algorithm}[H]\label{sec:algo-benchmark-transfer}
   \caption{Run multiple benchmark iterations for $transfer$ Runtime function}
   \SetAlgoLined
   \KwResult{A collection of time measurements of all benchmark iterations}
@@ -211,7 +219,8 @@ for each iteration.
   \item \textsc{Timer($function$)}
       \SubItem{Measures the time from the start of the specified $function$ to its completion.}
   \item \textsc{Transfer-Balance($sender$, $recipient$, $balance$)}
-      \SubItem{Transfers the specified $balance$ from $sender$ to $recipient$.}
+      \SubItem{Transfers the specified $balance$ from $sender$ to $recipient$ by calling the
+      corresponding Runtime function.}
 \end{itemize}
 
 \section{Fees}
