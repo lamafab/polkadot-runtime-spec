@@ -9,6 +9,7 @@
 \usepackage{color}
 \PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
 \usepackage{amsmath}
+\setlength\parindent{0pt}
 \newcommand{\todo}[1]{\textcolor{red}{TODO: #1}}
 \newcommand{\SubItem}[1]{
     {\setlength\itemindent{15pt} \item[-] #1}
@@ -127,6 +128,37 @@ performance of the Runtime.
 The benchmarks should be executed on clean systems without interference of other processes
 or software. Additionally, the benchmarks should be executed multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
+
+\subsection{Example}
+This describes the specifically designed benchmark of the \verb|transfer| function available
+in the Polkadot Runtime. The benchmark is designed to measure the worst possible condition:
+
+\begin{itemize}
+\item Transfer will kill the sender account (by completely depleting the balance to zero).
+\item Transfer will create the recipient account (the recipient account doesn't have a balance yet).
+\end{itemize}
+
+\subsubsection*{Parameters}
+The following parameters are selected:
+
+\begin{center}
+\begin{tabular}{ l|r l l }
+\textbf{Type} && \textbf{From} & \textbf{To} \\
+\hline
+Account index & \verb|index| in... & 1 & 1000 \\
+Sender balance & \verb|balance| in... & 2 & 1000 \\
+Transfer amount & \verb|transfer| in... & 2 & 1000 \\
+\end{tabular}
+\end{center}
+
+The benchmarks select the parameters within the range for each iteration:
+
+\begin{itemize}
+\item \verb|index|: 1, \verb|balance|: 2, \verb|transfer|: 2
+\item \verb|index|: 2, \verb|balance|: 3, \verb|transfer|: 3
+\item \verb|index|: 3, \verb|balance|: 4, \verb|transfer|: 4
+\item ...
+\end{itemize}
 
 \section{Fees}
 Block producers charge a fee in order to be economically sustainable. That fee must always
