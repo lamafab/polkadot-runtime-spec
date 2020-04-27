@@ -191,14 +191,23 @@ for each iteration.
   }
   \BlankLine
   \Fn{\textsc{Run-Benchmark($index$, $balance$)}}{
-    $Sender \leftarrow$ \textsc{Create-User(\textit{"caller"}, $index$)}\;
-    $Recipient \leftarrow$ \textsc{Create-User(\textit{"recipient"}, $index$)}\;
+    $sender \leftarrow$ \textsc{Create-User(\textit{"caller"}, $index$)}\;
+    $recipient \leftarrow$ \textsc{Create-User(\textit{"recipient"}, $index$)}\;
     \textsc{Set-Balance($Sender$, $balance$)}\;
     \BlankLine
-    $time \leftarrow$\textsc{Timer(Transfer-Balance($Sender$, $Recipient$, $balance$))}\;
+    $time \leftarrow$\textsc{Timer(Transfer-Balance($sender$, $recipient$, $balance$))}\;
     \Return time
   }
 \end{algorithm}
+
+\begin{itemize}
+  \item \textsc{Add-To($collection$, $time$)} - Adds a returned time measurement ($time$)
+  to $collection$.
+  \item \textsc{Create-User($name$, $index$)} - Creates a Blake2 hash of the concatenated input
+  of $name$ and $index$ representing the address of a account.
+  \item \textsc{Set-Balance($address$, $balance$)} - Sets a initial $balance$ for the specified
+  account ($address$)
+\end{itemize}
 
 \section{Fees}
 Block producers charge a fee in order to be economically sustainable. That fee must always
