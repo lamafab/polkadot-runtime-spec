@@ -210,8 +210,8 @@ follows (starting with the \textsc{Main} function):
   }
   \BlankLine
   \Fn{\textsc{Run-Benchmark($index$, $balance$)}}{
-    $sender \leftarrow$ \textsc{Create-User(\textit{"caller"}, $index$)}\;
-    $recipient \leftarrow$ \textsc{Create-User(\textit{"recipient"}, $index$)}\;
+    $sender \leftarrow$ \textsc{Create-Account(\textit{"caller"}, $index$)}\;
+    $recipient \leftarrow$ \textsc{Create-Account(\textit{"recipient"}, $index$)}\;
     \textsc{Set-Balance($sender$, $balance$)}\;
     \BlankLine
     $time \leftarrow$\textsc{Timer(Transfer($sender$, $recipient$, $balance$))}\;
@@ -220,11 +220,11 @@ follows (starting with the \textsc{Main} function):
 \end{algorithm}
 
 \begin{itemize}
-  \item \textsc{Create-User($name$, $index$)}
+  \item \textsc{Create-Account($name$, $index$)}
       \SubItem{Creates a Blake2 hash of the concatenated input of $name$ and $index$ representing
-      the address of a account. This function only creates the address and does not conduct any I/O.}
-  \item \textsc{Set-Balance($address$, $balance$)}
-      \SubItem{Sets a initial $balance$ for the specified account ($address$) in the storage state.}
+      the address of a account. This function only creates an address and does not conduct any I/O.}
+  \item \textsc{Set-Balance($account$, $balance$)}
+      \SubItem{Sets a initial $balance$ for the specified $account$ in the storage state.}
   \item \textsc{Transfer($sender$, $recipient$, $balance$)}
       \SubItem{Transfers the specified $balance$ from $sender$ to $recipient$ by calling the
       corresponding Runtime function. This represents the target Runtime function to be benchmarked.}
@@ -268,8 +268,8 @@ follows (starting with the \textsc{Main} function):
   \Fn{\textsc{Main}}{
     \KwInit{collection = \{\}\;}
     \For{$index\gets0$ \KwTo $1'000$ \KwBy $1$}{
-      $stash \leftarrow$ \textsc{Create-User(\textit{"stash"}, $index$)}\;
-      $controller \leftarrow$ \textsc{Create-User(\textit{"controller"}, $index$)}\;
+      $stash \leftarrow$ \textsc{Create-Account(\textit{"stash"}, $index$)}\;
+      $controller \leftarrow$ \textsc{Create-Account(\textit{"controller"}, $index$)}\;
       \textsc{Set-Balance($stash$, 100)}\;
       \textsc{Set-Balance($controller$, 100)}\;
       \textsc{Bond($stash$, $controller$, 10)}\;
@@ -282,15 +282,15 @@ follows (starting with the \textsc{Main} function):
 \end{algorithm}
 
 \begin{itemize}
-  \item \textsc{Create-User($name$, $index$)}
+  \item \textsc{Create-Account($name$, $index$)}
     \SubItem{Creates a Blake2 hash of the concatenated input of $name$ and $index$ representing
-    the address of a account. This function only creates the address and does not conduct any I/O.}
-  \item \textsc{Set-Balance($address$, $balance$)}
-      \SubItem{Sets a initial $balance$ for the specified account ($address$) in the storage state.}
+    the address of a account. This function only creates an address and does not conduct any I/O.}
+  \item \textsc{Set-Balance($account$, $balance$)}
+      \SubItem{Sets a initial $balance$ for the specified $account$ in the storage state.}
   \item \textsc{Bond($stash$, $controller$, $amount$)}
     \SubItem{Bonds the specified $amount$ for the $stash$ and $controller$ pair.}
-  \item \textsc{UnBond($address$, $amount$)}
-    \SubItem{Unbonds the specified $amount$ for the given $address$.}
+  \item \textsc{UnBond($account$, $amount$)}
+    \SubItem{Unbonds the specified $amount$ for the given $account$.}
   \item \textsc{Withdraw-Unbonded($controller$)}
     \SubItem{Withdraws the the full unbonded amount of the specified $controller$ account.
     This represents the target Runtime function to be benchmarked}
