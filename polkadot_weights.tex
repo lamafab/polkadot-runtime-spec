@@ -264,7 +264,7 @@ The benchmarking implementation for the Polkadot Runtime function $withdraw\_unb
       \textsc{Set-Balance($controller$, 100)}\;
       \textsc{Bond($controller$, 10)}\;
       \textsc{UnBond($controller$, 10)}\;
-      $time \leftarrow$\textsc{Timer(Withdraw-Unbonded($sender$, $recipient$, $balance$))}\;
+      $time \leftarrow$\textsc{Timer(Withdraw-Unbonded($controller$))}\;
       \textsc{Add-To($collection$, $time$)}\;
     }
   }
@@ -273,17 +273,21 @@ The benchmarking implementation for the Polkadot Runtime function $withdraw\_unb
 
 \begin{itemize}
   \item \textsc{Create-User($name$, $index$)}
-      \SubItem{Creates a Blake2 hash of the concatenated input of $name$ and $index$ representing
-      the address of a account. This function only creates the address and does not conduct any I/O.}
+    \SubItem{Creates a Blake2 hash of the concatenated input of $name$ and $index$ representing
+    the address of a account. This function only creates the address and does not conduct any I/O.}
   \item \textsc{Set-Balance($address$, $balance$)}
       \SubItem{Sets a initial $balance$ for the specified account ($address$) in the storage state.}
   \item \textsc{Bond($address$, $amount$)}
+    \SubItem{Bonds the specified $amount$ for the given $address$.}
   \item \textsc{UnBond($address$, $amount$)}
-  \item \textsc{Withdraw-Unbonded($sender$, $recipient$, $balance$)}
+    \SubItem{Unbonds the specified $amount$ for the given $address$.}
+  \item \textsc{Withdraw-Unbonded($controller$)}
+    \SubItem{Withdraws the the full unbonded amount of the specified $controller$ account.
+    This represents the target Runtime function to be benchmarked}
   \item \textsc{Add-To($collection$, $time$)}
-      \SubItem{Adds a returned time measurement ($time$) to $collection$.}
+    \SubItem{Adds a returned time measurement ($time$) to $collection$.}
   \item \textsc{Timer($function$)}
-      \SubItem{Measures the time from the start of the specified $function$ to its completion.}
+    \SubItem{Measures the time from the start of the specified $function$ to its completion.}
 \end{itemize}
 
 \section{Fees}
