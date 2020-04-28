@@ -69,7 +69,7 @@ As of the official Polkadot Runtime, the limitations are set as follows:
 
 \begin{itemize}
 \item Maximum block length: $5 \times 1'024 \times 1'024 = 5'242'880$ Bytes
-\item Maximum block weight: 1'000'000'000
+\item Maximum block weight: 2'000'000'000'000
 \item Targeted time per block: 6 seconds
 \item Available block ratio: 75\%
 \end{itemize}
@@ -131,17 +131,21 @@ or software. Additionally, the benchmarks should be executed multiple machines w
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
 \subsection{Preliminary Work}
-In order to produce conditions where resource heavy computation or excessive IO can be observed,
-the benchmarks might require some preliminary work on the environment. As a practical example,
-this section describes the specifically designed benchmark of the \verb|transfer| function available
-in the Polkadot Runtime. The benchmark is designed to measure the functions worst possible condition:
+In order for certain benchmarks to produce conditions where resource heavy computation or excessive
+I/O can be observed, the benchmarks might require some preliminary work on the environment.
+As practical examples, this section describes the specifically designed benchmarks for the \verb|transfer|
+and \verb|TODO| Runtime functions available in the Polkadot Runtime.
+
+\subsubsection{Practical example}
+The $transfer$ function of the \textit{balances} module is designed to move the specified balance by the sender to the receiver.
+The benchmark is configured to measure the function's worst possible condition:
 
 \begin{itemize}
   \item Transfer will kill the sender account (by completely depleting the balance to zero).
   \item Transfer will create the recipient account (the recipient account doesn't have a balance yet).
 \end{itemize}
 
-\subsection*{Parameters}
+\subsubsection*{Parameters}
 The following parameters are selected:
 
 \begin{center}
@@ -176,7 +180,7 @@ The parameters itself do not influence or trigger the two worst conditions and m
 the implemented benchmarking tool. The $transfer$ benchmark is implemented as defined in algorithm
 \ref{sec:algo-benchmark-transfer}.
 
-\subsection*{Implementation}
+\subsubsection*{Implementation}
 The benchmarking implementation for the Polkadot Runtime function $transfer$ is defined as follows:
 \newline
 
@@ -209,24 +213,77 @@ The benchmarking implementation for the Polkadot Runtime function $transfer$ is 
     $recipient \leftarrow$ \textsc{Create-User(\textit{"recipient"}, $index$)}\;
     \textsc{Set-Balance($sender$, $balance$)}\;
     \BlankLine
-    $time \leftarrow$\textsc{Timer(Transfer-Balance($sender$, $recipient$, $balance$))}\;
+    $time \leftarrow$\textsc{Timer(Transfer($sender$, $recipient$, $balance$))}\;
     \Return $time$
   }
 \end{algorithm}
 
 \begin{itemize}
-  \item \textsc{Add-To($collection$, $time$)}
-      \SubItem{Adds a returned time measurement ($time$) to $collection$.}
   \item \textsc{Create-User($name$, $index$)}
       \SubItem{Creates a Blake2 hash of the concatenated input of $name$ and $index$ representing
-      the address of a account.}
+      the address of a account. This function only creates the address and does not conduct any I/O.}
   \item \textsc{Set-Balance($address$, $balance$)}
       \SubItem{Sets a initial $balance$ for the specified account ($address$) in the storage state.}
+  \item \textsc{Transfer($sender$, $recipient$, $balance$)}
+      \SubItem{Transfers the specified $balance$ from $sender$ to $recipient$ by calling the
+      corresponding Runtime function. This represents the target Runtime function to be benchmarked.}
+  \item \textsc{Add-To($collection$, $time$)}
+      \SubItem{Adds a returned time measurement ($time$) to $collection$.}
   \item \textsc{Timer($function$)}
       \SubItem{Measures the time from the start of the specified $function$ to its completion.}
-  \item \textsc{Transfer-Balance($sender$, $recipient$, $balance$)}
-      \SubItem{Transfers the specified $balance$ from $sender$ to $recipient$ by calling the
-      corresponding Runtime function.}
+\end{itemize}
+
+\subsubsection{Practical example}
+The $withdraw\_unbonded$ function of the \textit{staking} module is designed to move any unlocked
+funds from the staking management system to be ready for transfer. The benchmark I/O heavy since it is
+configured to first create the accounts, bond a certain balance of funds, unbond those funds and then
+withdraw those funds.
+
+\subsubsection*{Parameters}
+TODO
+
+\subsubsection*{Implementation}
+The benchmarking implementation for the Polkadot Runtime function $withdraw\_unbonded$ is defined as follows:
+\newline
+
+\SetKw{KwInit}{Init:}
+\SetKw{KwBy}{increment by}
+\SetKwProg{Fn}{Function}{ is}{end}
+
+\begin{algorithm}[H]\label{sec:algo-benchmark-transfer}
+  \caption{Run multiple benchmark iterations for $transfer$ Runtime function}
+  \SetAlgoLined
+  \KwResult{A collection of time measurements of all benchmark iterations}
+  \BlankLine
+  \KwInit{collection = \{\}\;}
+  \Fn{\textsc{Main}}{
+    \For{$index\gets1$ \KwTo $1'000$ \KwBy $1$}{
+      $stash \leftarrow$ \textsc{Create-User(\textit{"stash"}, $index$)}\;
+      $controller \leftarrow$ \textsc{Create-User(\textit{"controller"}, $index$)}\;
+      \textsc{Set-Balance($stash$, 100)}\;
+      \textsc{Set-Balance($controller$, 100)}\;
+      \textsc{Bond($controller$, 10)}\;
+      \textsc{UnBond($controller$, 10)}\;
+      $time \leftarrow$\textsc{Timer(Withdraw-Unbonded($sender$, $recipient$, $balance$))}\;
+      \textsc{Add-To($collection$, $time$)}\;
+    }
+  }
+  \BlankLine
+\end{algorithm}
+
+\begin{itemize}
+  \item \textsc{Create-User($name$, $index$)}
+      \SubItem{Creates a Blake2 hash of the concatenated input of $name$ and $index$ representing
+      the address of a account. This function only creates the address and does not conduct any I/O.}
+  \item \textsc{Set-Balance($address$, $balance$)}
+      \SubItem{Sets a initial $balance$ for the specified account ($address$) in the storage state.}
+  \item \textsc{Bond($address$, $amount$)}
+  \item \textsc{UnBond($address$, $amount$)}
+  \item \textsc{Withdraw-Unbonded($sender$, $recipient$, $balance$)}
+  \item \textsc{Add-To($collection$, $time$)}
+      \SubItem{Adds a returned time measurement ($time$) to $collection$.}
+  \item \textsc{Timer($function$)}
+      \SubItem{Measures the time from the start of the specified $function$ to its completion.}
 \end{itemize}
 
 \section{Fees}
