@@ -121,7 +121,7 @@ of the actual, real-world network.
 
 \subsection{Blockchain State}
 The benchmarks should be performed on blockchain states that already polluted and contain a history of
-extrinsics and storage changes. Runtime functions that require read/writing on structures
+extrinsics and storage changes. Runtime functions that require I/O on structures
 such as Tries will therefore produce more realistic results that will reflect the real-world
 performance of the Runtime.
 
@@ -132,11 +132,12 @@ system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
 \subsection{Preliminary Work}
 In order for certain benchmarks to produce conditions where resource heavy computation or excessive
-I/O can be observed, the benchmarks might require some preliminary work on the environment.
+I/O can be observed, the benchmarks might require some preliminary work on the environment, since those
+conditions cannot be created with simply selected parameters.
 As practical examples, this section describes the specifically designed benchmarks for the \verb|transfer|
-and \verb|TODO| Runtime functions available in the Polkadot Runtime.
+and \verb|withdraw_unbonded| functions available in the Polkadot Runtime.
 
-\subsubsection{Practical example}
+\subsubsection{Practical example \#1}
 The $transfer$ function of the \textit{balances} module is designed to move the specified balance by the sender to the receiver.
 The benchmark is configured to measure the function's worst possible condition:
 
@@ -235,9 +236,9 @@ follows (starting with the \textsc{Main} function):
 \end{itemize}
 
 \newpage
-\subsubsection{Practical example}
+\subsubsection{Practical example \#2}
 The $withdraw\_unbonded$ function of the \textit{staking} module is designed to move any unlocked
-funds from the staking management system to be ready for transfer. The benchmark require a couple
+funds from the staking management system to be ready for transfer. The benchmark requires a couple
 of I/O operations:
 
 \begin{itemize}
@@ -249,11 +250,20 @@ of I/O operations:
 \end{itemize}
 
 \subsubsection*{Parameters}
-TODO
+The following parameters are selected:
+
+\begin{center}
+  \begin{tabular}{ l|r l l l }
+    \textbf{Type} && \textbf{From} & \textbf{To} & \textbf{Description}\\
+    \hline
+    Account index & \verb|index| in... & 0 & 1000 & Used as a seed for account creation \\
+  \end{tabular}
+\end{center}
+
+This benchmark does not require complex parameters. The values is use solely for account generation.
 
 \subsubsection*{Implementation}
-The benchmarking implementation for the Polkadot Runtime function $withdraw\_unbonded$ is defined as
-follows (starting with the \textsc{Main} function):
+The benchmarking implementation for the Polkadot Runtime function $withdraw\_unbonded$ is defined as follows:
 \newline
 
 \SetKw{KwInit}{Init:}
