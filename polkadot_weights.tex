@@ -181,7 +181,8 @@ the implemented benchmarking tool. The $transfer$ benchmark is implemented as de
 \ref{sec:algo-benchmark-transfer}.
 
 \subsubsection*{Implementation}
-The benchmarking implementation for the Polkadot Runtime function $transfer$ is defined as follows:
+The benchmarking implementation for the Polkadot Runtime function $transfer$ is defined as
+follows (starting with the \textsc{Main} function):
 \newline
 
 \SetKw{KwInit}{Init:}
@@ -191,17 +192,17 @@ The benchmarking implementation for the Polkadot Runtime function $transfer$ is 
 \begin{algorithm}[H]\label{sec:algo-benchmark-transfer}
   \caption{Run multiple benchmark iterations for $transfer$ Runtime function}
   \SetAlgoLined
-  \KwResult{A collection of time measurements of all benchmark iterations}
+  \KwResult{$collection$: a collection of time measurements of all benchmark iterations}
   \BlankLine
-  \KwInit{collection = \{\}\;}
   \Fn{\textsc{Main}}{
-    $balance = 1'000$\;
+    \KwInit{collection = \{\}\;}
+    \KwInit{$balance = 1'000$\;}
     \For{$index\gets1$ \KwTo $1'000$ \KwBy $1$}{
       $time \leftarrow$ \textsc{Run-Benchmark($index$, $balance$)}\;
       \textsc{Add-To($collection$, $time$)}\;
     }
     \BlankLine
-    $index = 1'000$\;
+    \KwInit{$index = 1'000$\;}
     \For{$balance\gets2$ \KwTo $1'000$ \KwBy $1$}{
       $time \leftarrow$ \textsc{Run-Benchmark($index$, $balance$)}\;
       \textsc{Add-To($collection$, $time$)}\;
@@ -233,17 +234,26 @@ The benchmarking implementation for the Polkadot Runtime function $transfer$ is 
       \SubItem{Measures the time from the start of the specified $function$ to its completion.}
 \end{itemize}
 
+\newpage
 \subsubsection{Practical example}
 The $withdraw\_unbonded$ function of the \textit{staking} module is designed to move any unlocked
-funds from the staking management system to be ready for transfer. The benchmark I/O heavy since it is
-configured to first create the accounts, bond a certain balance of funds, unbond those funds and then
-withdraw those funds.
+funds from the staking management system to be ready for transfer. The benchmark require a couple
+of I/O operations:
+
+\begin{itemize}
+  \item Create stash account and set initial balance.
+  \item Create controller account and set initial balance.
+  \item Bond a certain amount of the funds.
+  \item Unbond full amount of the funds.
+  \item Withdraw unbonded amount, making it ready for transfer.
+\end{itemize}
 
 \subsubsection*{Parameters}
 TODO
 
 \subsubsection*{Implementation}
-The benchmarking implementation for the Polkadot Runtime function $withdraw\_unbonded$ is defined as follows:
+The benchmarking implementation for the Polkadot Runtime function $withdraw\_unbonded$ is defined as
+follows (starting with the \textsc{Main} function):
 \newline
 
 \SetKw{KwInit}{Init:}
@@ -253,16 +263,16 @@ The benchmarking implementation for the Polkadot Runtime function $withdraw\_unb
 \begin{algorithm}[H]\label{sec:algo-benchmark-transfer}
   \caption{Run multiple benchmark iterations for $transfer$ Runtime function}
   \SetAlgoLined
-  \KwResult{A collection of time measurements of all benchmark iterations}
+  \KwResult{$collection$: a collection of time measurements of all benchmark iterations}
   \BlankLine
-  \KwInit{collection = \{\}\;}
   \Fn{\textsc{Main}}{
-    \For{$index\gets1$ \KwTo $1'000$ \KwBy $1$}{
+    \KwInit{collection = \{\}\;}
+    \For{$index\gets0$ \KwTo $1'000$ \KwBy $1$}{
       $stash \leftarrow$ \textsc{Create-User(\textit{"stash"}, $index$)}\;
       $controller \leftarrow$ \textsc{Create-User(\textit{"controller"}, $index$)}\;
       \textsc{Set-Balance($stash$, 100)}\;
       \textsc{Set-Balance($controller$, 100)}\;
-      \textsc{Bond($controller$, 10)}\;
+      \textsc{Bond($stash$, $controller$, 10)}\;
       \textsc{UnBond($controller$, 10)}\;
       $time \leftarrow$\textsc{Timer(Withdraw-Unbonded($controller$))}\;
       \textsc{Add-To($collection$, $time$)}\;
@@ -277,8 +287,8 @@ The benchmarking implementation for the Polkadot Runtime function $withdraw\_unb
     the address of a account. This function only creates the address and does not conduct any I/O.}
   \item \textsc{Set-Balance($address$, $balance$)}
       \SubItem{Sets a initial $balance$ for the specified account ($address$) in the storage state.}
-  \item \textsc{Bond($address$, $amount$)}
-    \SubItem{Bonds the specified $amount$ for the given $address$.}
+  \item \textsc{Bond($stash$, $controller$, $amount$)}
+    \SubItem{Bonds the specified $amount$ for the $stash$ and $controller$ pair.}
   \item \textsc{UnBond($address$, $amount$)}
     \SubItem{Unbonds the specified $amount$ for the given $address$.}
   \item \textsc{Withdraw-Unbonded($controller$)}
