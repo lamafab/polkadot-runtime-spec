@@ -136,6 +136,25 @@ increase execution time. Potential indicators like loops, IO operations and data
 be considered. Based on those observations, one should then select parameters that could have heavy
 implications on those design decisions.
 
+\subsection*{Practical example \#1}
+
+The function \verb|request_judgement| from the \verb|identity| Pallet allows users to request a judgement
+from a specific registrar. This function has reveals multiple design choices that can impact performance.
+
+The function:
+
+\begin{itemize}
+  \item fetches a list of current registrars from storage.
+  \item searches that list for the specified registrar index.
+  \item searches storage for the identity info of the transaction sender.
+  \item searches the identity info for the specified registrar. If no entry is found, the function will
+  insert the registrar into the identity info (assuming the registrar is not \"stickied\"). If the registrar
+  index already exists in the identity info, it will be inserted.
+  \item reserves a balance for the fee from the registrar.
+  \item updates the identity info into storage.
+\end{itemize}}
+
+
 \subsection{Preliminary Work}
 In order for certain benchmarks to produce conditions where resource heavy computation or excessive
 I/O can be observed, the benchmarks might require some preliminary work on the environment, since those
