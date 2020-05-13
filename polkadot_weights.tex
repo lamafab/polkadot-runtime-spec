@@ -141,7 +141,7 @@ Not every possible outcome can be caused with parameters. In some circumstances,
 is required before a specific benchmark gets executed. This is described in more precise detail in section
 \ref{sect:preliminary-work}.
 
-\subsection*{Practical example \#1}
+\subsection{Practical example \#1}
 
 \subsubsection*{Analysis}
 
@@ -208,11 +208,12 @@ Based on this analysis, the following conclusions can be drawn:
   \item The list of registrars varies. Fetching and searching through it can impact execution time.
   Given that only one operation is required to fetch the account, no matter the input, a too excessive
   deviation is not to be expected.
-  \SubItem{The benchmarks should be executed with different list sizes, from only a few to many registrars.}
+  \SubItem{The benchmarks should be executed with different list sizes, from only a few to many
+  \newline registrars.}
   \item The specified sender of the transaction is fetched from storage. Depending on the total accounts
   available in the storage, the execution time can vary. Given that only one operation is required to fetch
   the account, no matter the input, a too excessive deviation is not to be expected.
-  \SubItem{The benchmarks should be executed with a different amount of preexisting accounts in storage.}
+  \SubItem{The benchmarks should be executed with a different amount of preexisting accounts in\newline storage.}
   \item The specified registrar is searched for in the Identity Info. Additionally, if a new value gets
   inserted into the byte array, memory get reallocated. Depending on the size of the Identity Info, the
   execution time can vary.
@@ -225,6 +226,34 @@ Based on this analysis, the following conclusions can be drawn:
   \item Reserving a balance, inserting the Identity Info back to storage and creating a deposit event is
   unlikely to differ among benchmark varieties, besides for the thing already covered above.
 \end{itemize}
+
+\subsection{Practical example \#2}
+
+\subsubsection*{Analysis}
+
+The function \verb|payout_stakers| from the \verb|staking| Pallet can be called by a single account in order
+to payout the reward for all nominators who back a particular validator. The reward also covers the validator's
+share. This function is interesting because it iterators over a range of nominators, which varies, and does
+IO operation for each of them. The function does a lot of math, but those parts are very fast and do not require
+a closer inspection in this section of the paper.
+\newline
+
+First, this function makes some basic checks to verify if the specified era not higher then the current era
+(future) and is within the allowed range ("history depth"). After that, it fetches the era payout from storage
+and additionally verfies, whether the specified account is indeed a validator.
+
+\begin{verbatim}
+let era_payout = <ErasValidatorReward<T>>::get(&era)
+  .ok_or_else(|| Error::<T>::InvalidEraToReward)?;
+
+let controller = Self::bonded(&validator_stash).ok_or(Error::<T>::NotStash)?;
+let mut ledger = <Ledger<T>>::get(&controller).ok_or_else(|| Error::<T>::NotController)?;
+\end{verbatim}
+
+\todo Define "exposure"
+\newline
+
+
 
 \subsection{Preliminary Work}\label{sect:preliminary-work}
 In order for certain benchmarks to produce conditions where resource heavy computation or excessive
