@@ -130,6 +130,12 @@ The benchmarks should be executed on clean systems without interference of other
 or software. Additionally, the benchmarks should be executed multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
+\subsection{Runtime Analysis}
+The Runtime functions must be studied in order to determine which parts of the code will excessively
+increase execution time. Potential indicators like loops, IO operations and data manipulation must
+be considered. Based on those observations, one should then select parameters that could have heavy
+implications on those design decisions.
+
 \subsection{Preliminary Work}
 In order for certain benchmarks to produce conditions where resource heavy computation or excessive
 I/O can be observed, the benchmarks might require some preliminary work on the environment, since those
