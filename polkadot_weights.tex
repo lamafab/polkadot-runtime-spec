@@ -138,16 +138,18 @@ implications on those design decisions.
 
 \subsection*{Practical example \#1}
 
-In Polkadot, Controller accounts can save information about them on chain, known as the "Identity Info".
+\subsubsection*{Analysis}
+
+In Polkadot, Controller accounts can save information about themselves onchain, known as the "Identity Info".
 This includes information such as display name, legal name, email address, and so on. Polkadot selects
-a set of registrar which can judge identities and therefor incentivize a reputation model. The judgement itself
-is done offchain. The registrars rating, however, is saved on chain, directly in the corresponding accounts
+a set of registrar which can judge identities and therefore incentivizes a reputation model. The judgement itself
+is done offchain. The registrars rating, however, is saved onchain, directly in the corresponding 
 Identity Info. It's also note worthy that Identiy Info can contain additional fields, set manually by account
 holder.
 \newline
 
 The function \verb|request_judgement| from the \verb|identity| Pallet allows users to request a judgement
-from a specific registrar. This function reveals multiple design choices that can impact performance.
+from a specific registrar. Studying this function reveals multiple design choices that can impact performance.
 \newline
 
 First, it fetches a list of current registrars from storage and then searches that list for the specified
@@ -165,12 +167,13 @@ Then, it searches for the Identity Info from storage, based on the sender of the
 let mut id = <IdentityOf<T>>::get(&sender).ok_or(Error::<T>::NoIdentity)?;
 \end{verbatim}
 
-The identity info contains the entirety of entries, in an ordered form. It then proceeds the search all
+The Identity Info contains the entirety of entries, in an ordered form. It then proceeds the search all
 those entries for the specified registrar index. If an entry can be found, the value is updated
 (assuming the registrar is not "stickied", which implies it cannot be changed). In the context of registrars,
 this update implies that the Identity Info should be rejudged. If the entry cannot 
 be found, the value is inserted into the index where a matching element could be inserted while maintaining
 sorted order. This results in memory reallocation.
+\newpage
 
 \begin{verbatim}
 match id.judgements.binary_search_by_key(&reg_index, |x| x.0) {
@@ -191,6 +194,32 @@ T::Currency::reserve(&sender, registrar.fee)?;
 <IdentityOf<T>>::insert(&sender, id);
 Self::deposit_event(RawEvent::JudgementRequested(sender, reg_index));
 \end{verbatim}
+
+\subsubsection*{Considerations}
+
+Based on this analysis, the following conclusions can be drawn:
+
+\begin{itemize}
+  \item The list of registrars varies. Fetching and searching through it can impact execution time.
+  Given that only one operation is required to fetch the account, no matter the input, a too excessive
+  deviation is not to be expected.
+  \SubItem{The benchmarks should be executed with different list sizes, from only a few to many registrars.}
+  \item The specified sender of the transaction is fetched from storage. Depending on the total accounts
+  available in the storage, the execution time can vary. Given that only one operation is required to fetch
+  the account, no matter the input, a too excessive deviation is not to be expected.
+  \SubItem{The benchmarks should be executed with a different amount of preexisting accounts in storage.}
+  \item The specified registrar is searched for in the Identity Info. Additionally, if a new value gets
+  inserted into the byte array, memory get reallocated. Depending on the size of the Identity Info, the
+  execution time can vary.
+  \SubItem{The benchmarks should be executed with different sizes of the Identity Info, including
+  additional fields.}
+  \SubItem{The benchmarks should request judgement from registrars that are already inserted in the Identity
+  Info and newly introduced ones, in order to trigger memory reallocation.}
+  \SubItem{It is legitimate to introduce additional Weights for changes the sender has influence over,
+  such the additional fields in Identity Info.}
+  \item Reserving a balance, inserting the Identity Info back to storage and creating a deposit event is
+  unlikely to differ among benchmark varieties, besides for the thing already covered above.
+\end{itemize}
 
 \subsection{Preliminary Work}
 In order for certain benchmarks to produce conditions where resource heavy computation or excessive
