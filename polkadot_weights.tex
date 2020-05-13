@@ -135,17 +135,22 @@ The Runtime functions must be studied in order to determine which parts of the c
 increase execution time. Potential indicators like loops, IO operations and data manipulation must
 be considered. Based on those observations, one should then select parameters that could have heavy
 implications on those design decisions.
+\newline
+
+Not every possible outcome can be caused with parameters. In some circumstances, preliminary work
+is required before a specific benchmark gets executed. This is described in more precise detail in section
+\ref{sect:preliminary-work}.
 
 \subsection*{Practical example \#1}
 
 \subsubsection*{Analysis}
 
-In Polkadot, Controller accounts can save information about themselves onchain, known as the "Identity Info".
+In Polkadot, accounts can save information about themselves onchain, known as the "Identity Info".
 This includes information such as display name, legal name, email address, and so on. Polkadot selects
-a set of registrar which can judge identities and therefore incentivizes a reputation model. The judgement itself
+a set of registrars which can judge identities and therefore incentivizes a reputation model. The judgement itself
 is done offchain. The registrars rating, however, is saved onchain, directly in the corresponding 
-Identity Info. It's also note worthy that Identiy Info can contain additional fields, set manually by account
-holder.
+Identity Info. It's also note worthy that Identiy Info can contain additional fields, set manually by
+the corresponding account holder.
 \newline
 
 The function \verb|request_judgement| from the \verb|identity| Pallet allows users to request a judgement
@@ -214,14 +219,14 @@ Based on this analysis, the following conclusions can be drawn:
   \SubItem{The benchmarks should be executed with different sizes of the Identity Info, including
   additional fields.}
   \SubItem{The benchmarks should request judgement from registrars that are already inserted in the Identity
-  Info and newly introduced ones, in order to trigger memory reallocation.}
+  Info including newly introduced ones, in order to trigger memory reallocation.}
   \SubItem{It is legitimate to introduce additional Weights for changes the sender has influence over,
-  such the additional fields in Identity Info.}
+  such the additional fields in the Identity Info.}
   \item Reserving a balance, inserting the Identity Info back to storage and creating a deposit event is
   unlikely to differ among benchmark varieties, besides for the thing already covered above.
 \end{itemize}
 
-\subsection{Preliminary Work}
+\subsection{Preliminary Work}\label{sect:preliminary-work}
 In order for certain benchmarks to produce conditions where resource heavy computation or excessive
 I/O can be observed, the benchmarks might require some preliminary work on the environment, since those
 conditions cannot be created with simply selected parameters.
