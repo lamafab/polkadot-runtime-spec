@@ -202,7 +202,7 @@ Self::deposit_event(RawEvent::JudgementRequested(sender, reg_index));
 
 \subsubsection*{Considerations}
 
-Based on this analysis, the following conclusions can be drawn:
+Based on this analysis, the following notable conclusions can be drawn:
 
 \begin{itemize}
   \item The list of registrars varies. Fetching and searching through it can impact execution time.
@@ -259,6 +259,7 @@ ledger.claimed_rewards.retain(|&x| x >= current_era.saturating_sub(history_depth
 match ledger.claimed_rewards.binary_search(&era) {
   Ok(_) => Err(Error::<T>::AlreadyClaimed)?,
   Err(pos) => ledger.claimed_rewards.insert(pos, era),
+}
 \end{verbatim}
 
 \todo Define "exposure"
@@ -289,7 +290,7 @@ if let Some(imbalance) = Self::make_payout(
 \end{verbatim}
 
 Then, the nominators receive a payout. The functions loops through the exposed nominator list, conducting
-a insertion into storage for the creation of a deposit event for each of the nominators.
+a insertion into storage and a creation of a deposit event for each of the nominators.
 
 \begin{verbatim}
 for nominator in exposure.others.iter() {
@@ -305,6 +306,18 @@ for nominator in exposure.others.iter() {
   }
 }
 \end{verbatim}
+
+\subsubsection*{Considerations}
+
+Based on this analysis, the following notable conclusions can be drawn:
+
+\begin{itemize}
+  \item The Ledger contains a list of claimed rewards. Fetching, retaining and searching through it can affect execution
+  time. The retained list is inserted back into storage.
+  \SubItem{The benchmarks should be executed with different list sizes, from only a few to many claimed rewards.}
+  \item Looping through a list of nominators and creating IO operations for each heavily increases execution time.
+  \SubItem{The benchmarks should be exeucted with different amounts of nominators that back an individual validator.}
+\end{itemize}
 
 \subsection{Preliminary Work}\label{sect:preliminary-work}
 In order for certain benchmarks to produce conditions where resource heavy computation or excessive
