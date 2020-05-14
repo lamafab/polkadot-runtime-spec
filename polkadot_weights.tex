@@ -267,7 +267,7 @@ The retained claimed rewards are inserted back into storage.
 \end{verbatim}
 
 The Runtime is actually optimized to some degree: it only fetches a list of the highest staked nominators,
-a maximum of 64.
+a maximum of 64. The rest gets no reward.
 
 \begin{verbatim}
 let exposure = <ErasStakersClipped<T>>::get(&era, &ledger.stash);
