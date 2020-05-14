@@ -138,8 +138,8 @@ implications on those design decisions.
 \newline
 
 Not every possible outcome can be caused with parameters. In some circumstances, preliminary work
-is required before a specific benchmark gets executed. This is described in more precise detail in section
-\ref{sect:preliminary-work}.
+is required before a specific benchmark can be reliably measured. This is described in more precise
+detail in section \ref{sect:preliminary-work}.
 
 \subsection{Practical example \#1}
 
@@ -223,9 +223,8 @@ Based on this analysis, the following notable conclusions can be drawn:
   Info including newly introduced ones, in order to trigger memory reallocation.}
   \SubItem{It is legitimate to introduce additional Weights for changes the sender has influence over,
   such the additional fields in the Identity Info.}
-  \item Reserving a balance, inserting the Identity Info back to storage and creating a deposit event is
-  unlikely to differ among benchmark varieties, besides for the thing already covered above.
 \end{itemize}
+\newpage
 
 \subsection{Practical example \#2}
 
@@ -234,11 +233,10 @@ Based on this analysis, the following notable conclusions can be drawn:
 The function \verb|payout_stakers| from the \verb|staking| Pallet can be called by a single account in order
 to payout the reward for all nominators who back a particular validator. The reward also covers the validator's
 share. This function is interesting because it iterators over a range of nominators, which varies, and does
-IO operation for each of them. The function does a lot of math, but those parts are very fast and do not require
-a closer inspection in this section of the paper.
+IO operation for each of them.
 \newline
 
-First, this function makes some basic checks to verify if the specified era not higher then the current era
+First, this function makes some basic checks to verify if the specified era is not higher then the current era
 (future) and is within the allowed range ("history depth"). After that, it fetches the era payout from storage
 and additionally verfies, whether the specified account is indeed a validator and return the corresponding
 "Ledger".
@@ -262,16 +260,20 @@ match ledger.claimed_rewards.binary_search(&era) {
 }
 \end{verbatim}
 
-\todo Define "exposure"
-\newline
-
 The retained claimed rewards are inserted back into storage.
 
 \begin{verbatim}
 <Ledger<T>>::insert(&controller, &ledger);
 \end{verbatim}
 
-Next, the function fetches the era reward points from storage.
+The Runtime is actually optimized to some degree: it only fetches a list of the highest staked nominators,
+a maximum of 64.
+
+\begin{verbatim}
+let exposure = <ErasStakersClipped<T>>::get(&era, &ledger.stash);
+\end{verbatim}
+
+Next, the function gets the era reward points from storage.
 
 \begin{verbatim}
 let era_reward_points = <ErasRewardPoints<T>>::get(&era);
@@ -288,8 +290,9 @@ if let Some(imbalance) = Self::make_payout(
   Self::deposit_event(RawEvent::Reward(ledger.stash, imbalance.peek()));
 }
 \end{verbatim}
+\newpage
 
-Then, the nominators receive a payout. The functions loops through the exposed nominator list, conducting
+Then, the nominators receive a payout. The functions loops through the nominator list, conducting
 a insertion into storage and a creation of a deposit event for each of the nominators.
 
 \begin{verbatim}
@@ -315,8 +318,13 @@ Based on this analysis, the following notable conclusions can be drawn:
   \item The Ledger contains a list of claimed rewards. Fetching, retaining and searching through it can affect execution
   time. The retained list is inserted back into storage.
   \SubItem{The benchmarks should be executed with different list sizes, from only a few to many claimed rewards.}
+  \item The function searches the database for the reward points of the specified validator. If there are a lot of validators
+  in the network, the search becomes more expensive.
+  \SubItem{The benchmarks should be executed with different amounts of active validators.}
   \item Looping through a list of nominators and creating IO operations for each heavily increases execution time.
-  \SubItem{The benchmarks should be exeucted with different amounts of nominators that back an individual validator.}
+  The Runtime fetches up to 64 nominators.
+  \SubItem{The benchmarks should be exeucted with different amounts of nominators that back an individual validator.
+  The more there are, the higher is the IO overhead.}
 \end{itemize}
 
 \subsection{Preliminary Work}\label{sect:preliminary-work}
@@ -369,6 +377,7 @@ for more detail):
 The parameters itself do not influence or trigger the two worst conditions and must be handled by
 the implemented benchmarking tool. The $transfer$ benchmark is implemented as defined in algorithm
 \ref{sec:algo-benchmark-transfer}.
+\newpage
 
 \subsubsection*{Implementation}
 The benchmarking implementation for the Polkadot Runtime function $transfer$ is defined as
