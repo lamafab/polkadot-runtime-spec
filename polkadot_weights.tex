@@ -146,7 +146,7 @@ detail in section \ref{sect:preliminary-work}.
 \subsubsection*{Analysis}
 
 In Polkadot, accounts can save information about themselves onchain, known as the "Identity Info".
-This includes information such as display name, legal name, email address, and so on. Polkadot selects
+This includes information such as display name, legal name, email address and so on. Polkadot selects
 a set of registrars which can judge identities and therefore incentivizes a reputation model. The judgement itself
 is done offchain. The registrars rating, however, is saved onchain, directly in the corresponding 
 Identity Info. It's also note worthy that Identiy Info can contain additional fields, set manually by
@@ -237,8 +237,9 @@ IO operation for each of them.
 \newline
 
 First, this function makes some basic checks to verify if the specified era is not higher then the current era
-(future) and is within the allowed range ("history depth"). After that, it fetches the era payout from storage
-and additionally verfies, whether the specified account is indeed a validator and return the corresponding
+(future) and is within the allowed range ("history depth"), specified by the Runtime.
+After that, it fetches the era payout from storage
+and additionally verifies whether the specified account is indeed a validator and receives the corresponding
 "Ledger".
 
 \begin{verbatim}
