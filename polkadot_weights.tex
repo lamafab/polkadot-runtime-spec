@@ -240,7 +240,8 @@ a closer inspection in this section of the paper.
 
 First, this function makes some basic checks to verify if the specified era not higher then the current era
 (future) and is within the allowed range ("history depth"). After that, it fetches the era payout from storage
-and additionally verfies, whether the specified account is indeed a validator.
+and additionally verfies, whether the specified account is indeed a validator and return the corresponding
+"Ledger".
 
 \begin{verbatim}
 let era_payout = <ErasValidatorReward<T>>::get(&era)
@@ -250,10 +251,60 @@ let controller = Self::bonded(&validator_stash).ok_or(Error::<T>::NotStash)?;
 let mut ledger = <Ledger<T>>::get(&controller).ok_or_else(|| Error::<T>::NotController)?;
 \end{verbatim}
 
+The Ledger keeps a list of tracked rewards. The function only retains the entries of the "history depth",
+and conducts a binary search for the specified era.
+
+\begin{verbatim}
+ledger.claimed_rewards.retain(|&x| x >= current_era.saturating_sub(history_depth));
+match ledger.claimed_rewards.binary_search(&era) {
+  Ok(_) => Err(Error::<T>::AlreadyClaimed)?,
+  Err(pos) => ledger.claimed_rewards.insert(pos, era),
+\end{verbatim}
+
 \todo Define "exposure"
 \newline
 
+The retained claimed rewards are inserted back into storage.
 
+\begin{verbatim}
+<Ledger<T>>::insert(&controller, &ledger);
+\end{verbatim}
+
+Next, the function fetches the era reward points from storage.
+
+\begin{verbatim}
+let era_reward_points = <ErasRewardPoints<T>>::get(&era);
+\end{verbatim}
+
+After that, the payout is split among the validator and its nominators. The validators receives the payment
+first, creating an insertion into storage and sending a deposit event to the scheduler.
+
+\begin{verbatim}
+if let Some(imbalance) = Self::make_payout(
+  &ledger.stash,
+  validator_staking_payout + validator_commission_payout
+) {
+  Self::deposit_event(RawEvent::Reward(ledger.stash, imbalance.peek()));
+}
+\end{verbatim}
+
+Then, the nominators receive a payout. The functions loops through the exposed nominator list, conducting
+a insertion into storage for the creation of a deposit event for each of the nominators.
+
+\begin{verbatim}
+for nominator in exposure.others.iter() {
+  let nominator_exposure_part = Perbill::from_rational_approximation(
+    nominator.value,
+    exposure.total,
+  );
+
+  let nominator_reward: BalanceOf<T> = nominator_exposure_part * validator_leftover_payout;
+  // We can now make nominator payout:
+  if let Some(imbalance) = Self::make_payout(&nominator.who, nominator_reward) {
+    Self::deposit_event(RawEvent::Reward(nominator.who.clone(), imbalance.peek()));
+  }
+}
+\end{verbatim}
 
 \subsection{Preliminary Work}\label{sect:preliminary-work}
 In order for certain benchmarks to produce conditions where resource heavy computation or excessive
