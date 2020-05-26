@@ -130,7 +130,205 @@ The benchmarks should be executed on clean systems without interference of other
 or software. Additionally, the benchmarks should be executed multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
-\subsection{Preliminary Work}
+\subsection{Runtime Analysis}
+The Runtime functions must be studied in order to determine which parts of the code will excessively
+increase execution time. Potential indicators like loops, IO operations and data manipulation must
+be considered. Based on those observations, one should then select parameters that could have heavy
+implications on those design decisions.
+\newline
+
+Not every possible outcome can be caused with parameters. In some circumstances, preliminary work
+is required before a specific benchmark can be reliably measured. This is described in more precise
+detail in section \ref{sect:preliminary-work}.
+
+\subsubsection{Practical example \#1}
+
+\subsubsection*{Analysis}
+
+In Polkadot, accounts can save information about themselves onchain, known as the "Identity Info".
+This includes information such as display name, legal name, email address and so on. Polkadot selects
+a set of registrars which can judge identities and therefore incentivizes a reputation model. The judgement itself
+is done offchain. The registrars rating, however, is saved onchain, directly in the corresponding 
+Identity Info. It's also note worthy that Identiy Info can contain additional fields, set manually by
+the corresponding account holder.
+\newline
+
+The function \verb|request_judgement| from the \verb|identity| Pallet allows users to request a judgement
+from a specific registrar. Studying this function reveals multiple design choices that can impact performance.
+\newline
+
+First, it fetches a list of current registrars from storage and then searches that list for the specified
+registrar index.
+
+\begin{verbatim}
+let registrars = <Registrars<T>>::get();
+let registrar = registrars.get(reg_index as usize).and_then(Option::as_ref)
+  .ok_or(Error::<T>::EmptyIndex)?;
+\end{verbatim}
+
+Then, it searches for the Identity Info from storage, based on the sender of the transaction.
+
+\begin{verbatim}
+let mut id = <IdentityOf<T>>::get(&sender).ok_or(Error::<T>::NoIdentity)?;
+\end{verbatim}
+
+The Identity Info contains the entirety of entries, in an ordered form. It then proceeds the search all
+those entries for the specified registrar index. If an entry can be found, the value is updated
+(assuming the registrar is not "stickied", which implies it cannot be changed). In the context of registrars,
+this update implies that the Identity Info should be rejudged. If the entry cannot 
+be found, the value is inserted into the index where a matching element could be inserted while maintaining
+sorted order. This results in memory reallocation.
+\newpage
+
+\begin{verbatim}
+match id.judgements.binary_search_by_key(&reg_index, |x| x.0) {
+  Ok(i) => if id.judgements[i].1.is_sticky() {
+    Err(Error::<T>::StickyJudgement)?
+  } else {
+    id.judgements[i] = item
+  },
+  Err(i) => id.judgements.insert(i, item),
+}
+\end{verbatim}
+
+After that, it proceeds to reserve the registrar fee, inserts the newly updated identity info into storage
+and deposits the event into the scheduler.
+
+\begin{verbatim}
+T::Currency::reserve(&sender, registrar.fee)?;
+<IdentityOf<T>>::insert(&sender, id);
+Self::deposit_event(RawEvent::JudgementRequested(sender, reg_index));
+\end{verbatim}
+
+\subsubsection*{Considerations}
+
+Based on this analysis, the following notable conclusions can be drawn:
+
+\begin{itemize}
+  \item The list of registrars varies. Fetching and searching through it can impact execution time.
+  Given that only one operation is required to fetch the account, no matter the input, a too excessive
+  deviation is not to be expected.
+  \SubItem{The benchmarks should be executed with different list sizes, from only a few to many
+  \newline registrars.}
+  \item The specified sender of the transaction is fetched from storage. Depending on the total accounts
+  available in the storage, the execution time can vary. Given that only one operation is required to fetch
+  the account, no matter the input, a too excessive deviation is not to be expected.
+  \SubItem{The benchmarks should be executed with a different amount of preexisting accounts in\newline storage.}
+  \item The specified registrar is searched for in the Identity Info. Additionally, if a new value gets
+  inserted into the byte array, memory get reallocated. Depending on the size of the Identity Info, the
+  execution time can vary.
+  \SubItem{The benchmarks should be executed with different sizes of the Identity Info, including
+  additional fields.}
+  \SubItem{The benchmarks should request judgement from registrars that are already inserted in the Identity
+  Info including newly introduced ones, in order to trigger memory reallocation.}
+  \SubItem{It is legitimate to introduce additional Weights for changes the sender has influence over,
+  such the additional fields in the Identity Info.}
+\end{itemize}
+\newpage
+
+\subsubsection{Practical example \#2}
+
+\subsubsection*{Analysis}
+
+The function \verb|payout_stakers| from the \verb|staking| Pallet can be called by a single account in order
+to payout the reward for all nominators who back a particular validator. The reward also covers the validator's
+share. This function is interesting because it iterators over a range of nominators, which varies, and does
+IO operation for each of them.
+\newline
+
+First, this function makes some basic checks to verify if the specified era is not higher then the current era
+(future) and is within the allowed range ("history depth"), specified by the Runtime.
+After that, it fetches the era payout from storage
+and additionally verifies whether the specified account is indeed a validator and receives the corresponding
+"Ledger".
+
+\begin{verbatim}
+let era_payout = <ErasValidatorReward<T>>::get(&era)
+  .ok_or_else(|| Error::<T>::InvalidEraToReward)?;
+
+let controller = Self::bonded(&validator_stash).ok_or(Error::<T>::NotStash)?;
+let mut ledger = <Ledger<T>>::get(&controller).ok_or_else(|| Error::<T>::NotController)?;
+\end{verbatim}
+
+The Ledger keeps a list of tracked rewards. The function only retains the entries of the "history depth",
+and conducts a binary search for the specified era.
+
+\begin{verbatim}
+ledger.claimed_rewards.retain(|&x| x >= current_era.saturating_sub(history_depth));
+match ledger.claimed_rewards.binary_search(&era) {
+  Ok(_) => Err(Error::<T>::AlreadyClaimed)?,
+  Err(pos) => ledger.claimed_rewards.insert(pos, era),
+}
+\end{verbatim}
+
+The retained claimed rewards are inserted back into storage.
+
+\begin{verbatim}
+<Ledger<T>>::insert(&controller, &ledger);
+\end{verbatim}
+
+The Runtime is actually optimized to some degree: it only fetches a list of the highest staked nominators,
+a maximum of 64. The rest gets no reward.
+
+\begin{verbatim}
+let exposure = <ErasStakersClipped<T>>::get(&era, &ledger.stash);
+\end{verbatim}
+
+Next, the function gets the era reward points from storage.
+
+\begin{verbatim}
+let era_reward_points = <ErasRewardPoints<T>>::get(&era);
+\end{verbatim}
+
+After that, the payout is split among the validator and its nominators. The validators receives the payment
+first, creating an insertion into storage and sending a deposit event to the scheduler.
+
+\begin{verbatim}
+if let Some(imbalance) = Self::make_payout(
+  &ledger.stash,
+  validator_staking_payout + validator_commission_payout
+) {
+  Self::deposit_event(RawEvent::Reward(ledger.stash, imbalance.peek()));
+}
+\end{verbatim}
+\newpage
+
+Then, the nominators receive a payout. The functions loops through the nominator list, conducting
+a insertion into storage and a creation of a deposit event for each of the nominators.
+
+\begin{verbatim}
+for nominator in exposure.others.iter() {
+  let nominator_exposure_part = Perbill::from_rational_approximation(
+    nominator.value,
+    exposure.total,
+  );
+
+  let nominator_reward: BalanceOf<T> = nominator_exposure_part * validator_leftover_payout;
+  // We can now make nominator payout:
+  if let Some(imbalance) = Self::make_payout(&nominator.who, nominator_reward) {
+    Self::deposit_event(RawEvent::Reward(nominator.who.clone(), imbalance.peek()));
+  }
+}
+\end{verbatim}
+
+\subsubsection*{Considerations}
+
+Based on this analysis, the following notable conclusions can be drawn:
+
+\begin{itemize}
+  \item The Ledger contains a list of claimed rewards. Fetching, retaining and searching through it can affect execution
+  time. The retained list is inserted back into storage.
+  \SubItem{The benchmarks should be executed with different list sizes, from only a few to many claimed rewards.}
+  \item The function searches the database for the reward points of the specified validator. If there are a lot of validators
+  in the network, the search becomes more expensive.
+  \SubItem{The benchmarks should be executed with different amounts of active validators.}
+  \item Looping through a list of nominators and creating IO operations for each heavily increases execution time.
+  The Runtime fetches up to 64 nominators.
+  \SubItem{The benchmarks should be exeucted with different amounts of nominators that back an individual validator.
+  The more there are, the higher is the IO overhead.}
+\end{itemize}
+
+\subsection{Preliminary Work}\label{sect:preliminary-work}
 In order for certain benchmarks to produce conditions where resource heavy computation or excessive
 I/O can be observed, the benchmarks might require some preliminary work on the environment, since those
 conditions cannot be created with simply selected parameters.
@@ -180,6 +378,7 @@ for more detail):
 The parameters itself do not influence or trigger the two worst conditions and must be handled by
 the implemented benchmarking tool. The $transfer$ benchmark is implemented as defined in algorithm
 \ref{sec:algo-benchmark-transfer}.
+\newpage
 
 \subsubsection*{Implementation}
 The benchmarking implementation for the Polkadot Runtime function $transfer$ is defined as
