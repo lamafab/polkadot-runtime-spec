@@ -134,21 +134,59 @@ system resources, such as CPU performance, CPU cores, RAM and storage speed.
 The Runtime functions must be studied in order to determine which parts of the code will excessively
 increase execution time. Potential indicators like loops, IO operations and data manipulation must
 be considered. Based on those observations, one should then select parameters that could have heavy
-implications on those design decisions.
+implications on those design choices.
 \newline
 
-The Runtime reuses components, so called "primitives", to interact with the state. The behavior and
+The Runtime reuses components/primitives to interact with the state. The behavior and
 the execution cost of those primitives can be studied and a Weight can be applied for each use
-withing the Runtime code.
+within the Runtime code.
 \newline
 
-Common primitives are the following:
+For storage, Polkadot uses three different types of storage types across its modules, depending on the
+context:
 
+\begin{itemize}
+  \item \textbf{Value}: Single value where no other keys are used.
+  \newline\newline
+  The final value is stored under the key:\newline
+  \verb|hash(module_prefix) + hash(storage_prefix)|.
+  \item \textbf{Map}: Multiple values with their corresponding, unique keys.
+  \newline\newline
+  The final value is stored under the key:\newline
+  \verb|hash(module_prefix) + hash(storage_prefix) + hash(encode(key))|.
+  \item \textbf{Double map}: Just like \textbf{Map}, but uses two keys instead of one to save and retrieve
+  values (parent and child key).
+  \newline\newline
+  The final value is stored under the key:\newline
+  \verb|hash(module_prefix) + hash(storage_prefix) + hash(encode(key1)) + hash(encode(key2))|.
+\end{itemize}
+
+The types \textbf{Map} and \textbf{Double map} support multiple hashing algorithms, each providing different
+properties in terms of safety (collision resistance) and performance:
+
+\begin{itemize}
+  \item Blake2 128-bit concat (hash + key concatenated)
+  \item xxHash 64-bit concat (hash + key concatenated)
+  \item Unhashed raw key
+\end{itemize}
+
+Those lower level types get abstracted over in each individual Runtime module using the \verb|decl_storage!()|
+macro. Therefore, each module specifies its own types that are used as input and output values.
+The abstractions do give indicators on what operations must be closely observed and where potential
+performance penalties and attack vectors are possible.
+\newline
+
+Section \ref{sect:practical-examples} walks through two practical examples of such analysis.
 Not every possible outcome can be caused with parameters. In some circumstances, preliminary work
 is required before a specific benchmark can be reliably measured. This is described in more precise
 detail in section \ref{sect:preliminary-work}.
 
-\subsection{Practical examples}
+\subsection{Considerations for "Value"}
+
+
+\subsection{Considerations for "Map"}
+
+\subsection{Practical examples}\label{sect:practical-examples}
 
 \subsubsection{Practical example \#1}
 
