@@ -130,16 +130,25 @@ The benchmarks should be executed on clean systems without interference of other
 or software. Additionally, the benchmarks should be executed multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
-\subsection{Runtime Analysis}
+\section{Runtime Primitives}
 The Runtime functions must be studied in order to determine which parts of the code will excessively
 increase execution time. Potential indicators like loops, IO operations and data manipulation must
 be considered. Based on those observations, one should then select parameters that could have heavy
 implications on those design decisions.
 \newline
 
+The Runtime reuses components, so called "primitives", to interact with the state. The behavior and
+the execution cost of those primitives can be studied and a Weight can be applied for each use
+withing the Runtime code.
+\newline
+
+Common primitives are the following:
+
 Not every possible outcome can be caused with parameters. In some circumstances, preliminary work
 is required before a specific benchmark can be reliably measured. This is described in more precise
 detail in section \ref{sect:preliminary-work}.
+
+\subsection{Practical examples}
 
 \subsubsection{Practical example \#1}
 
