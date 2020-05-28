@@ -137,6 +137,13 @@ be considered. Based on those observations, one should then select parameters th
 implications on those design choices.
 \newline
 
+Section \ref{sect:practical-examples} walks through two practical examples of such analysis.
+Not every possible outcome can be caused with input parameters to the Runtime function.
+In some circumstances, preliminary work regarding
+storage is required before a specific benchmark can be reliably measured. This is described in more precise
+detail in section \ref{sect:preliminary-work}.
+
+\subsection{Primitive Types}
 The Runtime reuses components/primitives to interact with the state. The behavior and
 the execution cost of those primitives can be studied and a Weight can be applied for each use
 within the Runtime code.
@@ -146,21 +153,23 @@ For storage, Polkadot uses three different types of storage types across its mod
 context:
 
 \begin{itemize}
-  \item \textbf{Value}: Single value where no other keys are used.
+  \item \textbf{Value}: Operations on a single value.
   \newline\newline
-  The final value is stored under the key:\newline
+  The final key-value pair is stored under the key:\newline
   \verb|hash(module_prefix) + hash(storage_prefix)|.
-  \item \textbf{Map}: Multiple values with their corresponding, unique keys.
+  \item \textbf{Map}: Operations on mulitple values with their corresponding, unique keys.
   \newline\newline
-  The final value is stored under the key:\newline
+  The final key-value pair is stored under the key:\newline
   \verb|hash(module_prefix) + hash(storage_prefix) + hash(encode(key))|.
-  \item \textbf{Double map}: Just like \textbf{Map}, but uses two keys instead of one to save and retrieve
-  values (parent and child key).
+  \item \textbf{Double map}: Just like \textbf{Map}, but uses two keys instead of one 
+  (child storages).
   \newline\newline
-  The final value is stored under the key:\newline
+  The final key-value pair is stored under the key:\newline
   \verb|hash(module_prefix) + hash(storage_prefix) + hash(encode(key1)) + hash(encode(key2))|.
 \end{itemize}
 
+Which type to use depends on the functionality of the Runtime module (or its sub-processes, rather).
+In some cases only a single value is requires. In others, multiple values need to be operated on.
 The types \textbf{Map} and \textbf{Double map} support multiple hashing algorithms, each providing different
 properties in terms of safety (collision resistance) and performance:
 
@@ -174,17 +183,37 @@ Those lower level types get abstracted over in each individual Runtime module us
 macro. Therefore, each module specifies its own types that are used as input and output values.
 The abstractions do give indicators on what operations must be closely observed and where potential
 performance penalties and attack vectors are possible.
+
+\subsubsection{"Value" type}
+
+Single value inserts and lookups do not extraordinary increase performance of varying data or information.
+However, excessive IO must be accounted for when the Runtime function conducts those operations in loops
+or iterations over lists of items.
 \newline
 
-Section \ref{sect:practical-examples} walks through two practical examples of such analysis.
-Not every possible outcome can be caused with parameters. In some circumstances, preliminary work
-is required before a specific benchmark can be reliably measured. This is described in more precise
-detail in section \ref{sect:preliminary-work}.
+Indicators for performance penalties:
 
-\subsection{Considerations for "Value"}
+\begin{itemize}
+  \item \textbf{Fixed iterations} -
+  Fixed iterations can increase the overall cost of the Runtime functions, but the iteration
+  amount does not
+  change since it's not dependent on any input parameters or environment. A base Weight is appropriate
+  in this case.
+  \item \textbf{Adjustable iterations} -
+  If the amount of iterations depends on the input parameters of the caller or specific entries in storage,
+  then a certain Weight should be applied for each (additional) iteration.
+  The Runtime defines the maximum value for such cases. If it doesn't, it unconditionally should
+  and must be adjusted.
+  \newline\newline
+  When selecting parameters
+  for benchmarking, the benchmarks should range from the minimum value to the maximum value.
+  \item \textbf{Size of data} -
+  Usually, a caller does not have
+\end{itemize}
 
+\subsubsection{"Map" type}
 
-\subsection{Considerations for "Map"}
+\subsubsection{"Double map" type}
 
 \subsection{Practical examples}\label{sect:practical-examples}
 
