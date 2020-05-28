@@ -176,7 +176,7 @@ properties in terms of safety (collision resistance) and performance:
 \begin{itemize}
   \item Blake2 128-bit concat (hash + key concatenated)
   \item xxHash 64-bit concat (hash + key concatenated)
-  \item Unhashed raw key
+  \item Un-hashed, raw key
 \end{itemize}
 
 Those lower level types get abstracted over in each individual Runtime module using the \verb|decl_storage!()|
@@ -184,9 +184,9 @@ macro. Therefore, each module specifies its own types that are used as input and
 The abstractions do give indicators on what operations must be closely observed and where potential
 performance penalties and attack vectors are possible.
 
-\subsubsection{"Value" type}
+\subsubsection{Considerations}
 
-Single value inserts and lookups do not extraordinary increase performance of varying data or information.
+Single value inserts and fetches do not excessively increase performance of varying data or information.
 However, excessive IO must be accounted for when the Runtime function conducts those operations in loops
 or iterations over lists of items.
 \newline
@@ -194,26 +194,27 @@ or iterations over lists of items.
 Indicators for performance penalties:
 
 \begin{itemize}
-  \item \textbf{Fixed iterations} -
-  Fixed iterations can increase the overall cost of the Runtime functions, but the iteration
-  amount does not
-  change since it's not dependent on any input parameters or environment. A base Weight is appropriate
-  in this case.
-  \item \textbf{Adjustable iterations} -
-  If the amount of iterations depends on the input parameters of the caller or specific entries in storage,
-  then a certain Weight should be applied for each (additional) iteration.
-  The Runtime defines the maximum value for such cases. If it doesn't, it unconditionally should
-  and must be adjusted.
+  \item \textbf{Fixed iterations and list sizes} -
+  Fixed iterations and list sizes can increase the overall cost of the Runtime functions,
+  but the execution time
+  does not vary depending on the input parameters or storage entries.
+  A base Weight is appropriate in this case.
+  \item \textbf{Adjustable iterations and list sizes} -
+  If the amount of iterations or list sizes depend on the input parameters of the caller or
+  specific entries in storage,
+  then a certain Weight should be applied for each (additional) iteration or item.
+  The Runtime defines the maximum value for such cases. If it doesn't, it unconditionally has to
+  and the Runtime module must be adjusted.
   \newline\newline
   When selecting parameters
   for benchmarking, the benchmarks should range from the minimum value to the maximum value.
-  \item \textbf{Size of data} -
-  Usually, a caller does not have
+  \newline\newline
+  Note: What the maximum number should be really depends on the functionality that the Runtime function
+  is trying to provide. If the choice for that number is not obvious, then it's advised to run
+  benchmarks on a big range of values and pick a conservative number below the \verb|targeted time per block|
+  limit as described in section \ref{sec:limitations}.
+  \item \textbf{Size of data} - 
 \end{itemize}
-
-\subsubsection{"Map" type}
-
-\subsubsection{"Double map" type}
 
 \subsection{Practical examples}\label{sect:practical-examples}
 
