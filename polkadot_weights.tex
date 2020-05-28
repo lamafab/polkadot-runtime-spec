@@ -213,7 +213,10 @@ Indicators for performance penalties:
   is trying to provide. If the choice for that number is not obvious, then it's advised to run
   benchmarks on a big range of values and pick a conservative number below the \verb|targeted time per block|
   limit as described in section \ref{sec:limitations}.
-  \item \textbf{Size of data} - 
+  \item \textbf{Size of data} - Depending on the function, the data that gets inserted and fetched from
+  storage can vary in sizes. The function should be examined to determine which conditions can result in
+  operations on big data sets. One should also carefully consider what kind of data gets passed on to the
+  Runtime functions as a input Parameter.
 \end{itemize}
 
 \subsection{Practical examples}\label{sect:practical-examples}
