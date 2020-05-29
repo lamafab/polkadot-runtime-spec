@@ -145,7 +145,7 @@ detail in section \ref{sect:preliminary-work}.
 
 \subsection{Primitive Types}
 The Runtime reuses components/primitives to interact with the state storage. The behavior and
-the execution cost of those primitives can be studied and a Weight can be applied for each use
+the execution cost of those primitives can be studied and a Weight should be applied for each use
 within the Runtime code.
 \newline
 
@@ -157,7 +157,7 @@ context:
   \newline\newline
   The final key-value pair is stored under the key:\newline
   \verb|hash(module_prefix) + hash(storage_prefix)|.
-  \item \textbf{Map}: Operations on mulitple values with their corresponding, unique keys.
+  \item \textbf{Map}: Operations on mulitple values, datasets, with their corresponding, unique keys.
   \newline\newline
   The final key-value pair is stored under the key:\newline
   \verb|hash(module_prefix) + hash(storage_prefix) + hash(encode(key))|.
@@ -169,7 +169,7 @@ context:
 \end{itemize}
 
 Which type to use depends on the functionality of the Runtime module (or its sub-processes, rather).
-In some cases only a single value is requires. In others, multiple values need to be operated on.
+In some cases only a single value is required. In others, multiple values need to be operated on.
 The types \textbf{Map} and \textbf{Double map} support multiple hashing algorithms, each providing different
 properties in terms of safety (collision resistance) and performance:
 
@@ -188,7 +188,7 @@ performance penalties and attack vectors are possible.
 
 The storage layout is mostly the same for every primitive type, primarily differentiated
 by using special prefixes for the storage key. Big differences arise on how the primitive
-types are used in the Runtime function, on whether single values are returned or entire lists
+types are used in the Runtime function, on whether single values are operated on or entire lists
 of datasets. Single value operations are generally quite cheap and its execution time does
 not vary depending on the data that's being processed. However, excessive IO overhead can appear
 when IO operations are executed repeatedly, such as loops. Especially, when the amount of loop
@@ -204,13 +204,13 @@ that list.
 Indicators for performance penalties:
 
 \begin{itemize}
-  \item \textbf{Fixed iterations and list sizes} -
-  Fixed iterations and list sizes can increase the overall cost of the Runtime functions,
+  \item \textbf{Fixed iterations and datasets} -
+  Fixed iterations and datasets can increase the overall cost of the Runtime functions,
   but the execution time
   does not vary depending on the input parameters or storage entries.
   A base Weight is appropriate in this case.
-  \item \textbf{Adjustable iterations and list sizes} -
-  If the amount of iterations or list sizes depend on the input parameters of the caller or
+  \item \textbf{Adjustable iterations and datasets} -
+  If the amount of iterations or datasets depend on the input parameters of the caller or
   specific entries in storage,
   then a certain Weight should be applied for each (additional) iteration or item.
   The Runtime defines the maximum value for such cases. If it doesn't, it unconditionally has to
@@ -226,7 +226,7 @@ Indicators for performance penalties:
   \item \textbf{Input parameters} -
   Input parameters that users pass on to the Runtime function can result in dangerous consequences.
   Depending on the data type, it can be appropriate the add additional Weights based on certain properties,
-  such as data size. The Runtime defines the maximum size for such cases. If it doesn't, it unconditionally
+  such as data size. The Runtime must define limits of those properties. If it doesn't, it unconditionally
   has to and the Runtime module must be adjusted.
   \newline\newline
   When selecting parameters for benchmarking, the benchmarks should range from small values to the maximum
