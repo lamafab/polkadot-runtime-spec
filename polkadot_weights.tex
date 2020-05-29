@@ -280,7 +280,6 @@ those entries for the specified registrar index. If an entry can be found, the v
 this update implies that the Identity Info should be rejudged. If the entry cannot 
 be found, the value is inserted into the index where a matching element could be inserted while maintaining
 sorted order. This results in memory reallocation.
-\newpage
 
 \begin{verbatim}
 match id.judgements.binary_search_by_key(&reg_index, |x| x.0) {
@@ -326,7 +325,6 @@ Based on this analysis, the following notable conclusions can be drawn:
   \SubItem{It is legitimate to introduce additional Weights for changes the sender has influence over,
   such the additional fields in the Identity Info.}
 \end{itemize}
-\newpage
 
 \subsubsection{Practical example \#2}
 
@@ -393,7 +391,6 @@ if let Some(imbalance) = Self::make_payout(
   Self::deposit_event(RawEvent::Reward(ledger.stash, imbalance.peek()));
 }
 \end{verbatim}
-\newpage
 
 Then, the nominators receive a payout. The functions loops through the nominator list, conducting
 a insertion into storage and a creation of a deposit event for each of the nominators.
@@ -480,7 +477,6 @@ for more detail):
 The parameters itself do not influence or trigger the two worst conditions and must be handled by
 the implemented benchmarking tool. The $transfer$ benchmark is implemented as defined in algorithm
 \ref{sec:algo-benchmark-transfer}.
-\newpage
 
 \subsubsection*{Implementation}
 The benchmarking implementation for the Polkadot Runtime function $transfer$ is defined as
@@ -536,7 +532,6 @@ follows (starting with the \textsc{Main} function):
       \SubItem{Measures the time from the start of the specified $function$ to its completion.}
 \end{itemize}
 
-\newpage
 \subsubsection{Practical example \#2}
 The $withdraw\_unbonded$ function of the \textit{staking} module is designed to move any unlocked
 funds from the staking management system to be ready for transfer. The benchmark requires a couple
