@@ -208,13 +208,14 @@ on certain values, such as memory relocations and other outcomes that can impact
 \newline
 
 It's not possible to benchmark every single value. However, one should select a range
-of inputs to benchmark, spanning from very small values (or none, if the Runtime function
-allows it) to large values which will most likely exceed the expected usage of that function.
+of inputs to benchmark, spanning from the minimum value
+to the maximum value which will most likely exceed the expected usage of that function.
+This is described in more detail in section \ref{sect:primitive-types}.
 \newline
 
 The benchmarks should run individual executions/iterations within that range, where the chosen parameters
-should give insight on an average execution time and resource cost. Selecting imprecise parameters
-or too extreme ranges might indicate an inaccurate average of the function as it will be used in production.
+should give insight on the execution time and resource cost. Selecting imprecise parameters
+or too extreme ranges might indicate an inaccurate result of the function as it will be used in production.
 Therefore, when a range of input parameters gets benchmarked, the result of each individual parameter
 should be recorded and ideally visualized. The author should then decide on the most probable average
 execution time, basing that decision on the limitations of the Runtime and expected usage of the network.
@@ -232,7 +233,7 @@ performance of the Runtime.
 
 \subsection{Environment}
 The benchmarks should be executed on clean systems without interference of other processes
-or software. Additionally, the benchmarks should be executed multiple machines with different
+or software. Additionally, the benchmarks should be executed on multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
 \subsection{Practical examples}\label{sect:practical-examples}
