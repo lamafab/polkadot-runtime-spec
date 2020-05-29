@@ -133,8 +133,8 @@ system resources, such as CPU performance, CPU cores, RAM and storage speed.
 \section{Runtime Primitives}
 The Runtime functions must be studied in order to determine which parts of the code will excessively
 increase execution time. Potential indicators like loops, IO operations and data manipulation must
-be considered. Based on those observations, one should then select parameters that could have heavy
-implications on those design choices.
+be considered. Based on those observations, Weights should be applied on operations
+that could have heavy implications on those design choices.
 \newline
 
 Section \ref{sect:practical-examples} walks through two practical examples of such analysis.
@@ -186,9 +186,19 @@ performance penalties and attack vectors are possible.
 
 \subsubsection{Considerations}
 
-Single value inserts and fetches do not excessively increase performance of varying data or information.
-However, excessive IO must be accounted for when the Runtime function conducts those operations in loops
-or iterations over lists of items.
+The storage layout is mostly the same for every primitive type, primarily differentiated
+by using special prefixes for the storage key. Big differences arise on how the primitive
+types are used in the Runtime function, on whether single values are returned or entire lists
+of datasets. Single value operations are generally quite cheap and its execution time does
+not vary depending on the data that's being processed. However, excessive IO overhead can appear
+when IO operations are executed repeatedly, such as loops. Especially, when the amount of loop
+iterations can be influenced by the caller of the function or by certain conditions in the
+state storage.
+\newline
+
+Maps, in contrast, can have additional overhead when inserting or retrieving
+lists of datasets. Additionally, the Runtime function has to process each item inside
+that list.
 \newline
 
 Indicators for performance penalties:
