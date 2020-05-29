@@ -144,7 +144,7 @@ storage is required before a specific benchmark can be reliably measured. This i
 detail in section \ref{sect:preliminary-work}.
 
 \subsection{Primitive Types}
-The Runtime reuses components/primitives to interact with the state. The behavior and
+The Runtime reuses components/primitives to interact with the state storage. The behavior and
 the execution cost of those primitives can be studied and a Weight can be applied for each use
 within the Runtime code.
 \newline
@@ -213,10 +213,14 @@ Indicators for performance penalties:
   is trying to provide. If the choice for that number is not obvious, then it's advised to run
   benchmarks on a big range of values and pick a conservative number below the \verb|targeted time per block|
   limit as described in section \ref{sec:limitations}.
-  \item \textbf{Size of data} - Depending on the function, the data that gets inserted and fetched from
-  storage can vary in sizes. The function should be examined to determine which conditions can result in
-  operations on big data sets. One should also carefully consider what kind of data gets passed on to the
-  Runtime functions as a input Parameter.
+  \item \textbf{Input parameters} -
+  Input parameters that users pass on to the Runtime function can result in dangerous consequences.
+  Depending on the data type, it can be appropriate the add additional Weights based on certain properties,
+  such as data size. The Runtime defines the maximum size for such cases. If it doesn't, it unconditionally
+  has to and the Runtime module must be adjusted.
+  \newline\newline
+  When selecting parameters for benchmarking, the benchmarks should range from small values to the maximum
+  value.
 \end{itemize}
 
 \subsection{Practical examples}\label{sect:practical-examples}
