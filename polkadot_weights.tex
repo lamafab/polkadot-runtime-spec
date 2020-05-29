@@ -83,53 +83,6 @@ for each transaction at about 1'500'000.
 
 Do note that the smallest, non-zero weight in Polkadot is set at 10'000.
 
-\section{Weight Assignment}
-Assigning weights based on theoretical performance such as big O notation proves to be
-unreliable and too complex due to imprecision in back-end systems, internal communication
-within the Runtime and design choices in the software. Therefore, all available Runtime 
-functions, which create and execute extrinsics, have to be benchmarked with a large
-collection of input parameters.
-
-\subsection{Parameters}
-The inputs parameters highly vary depending on the Runtime function and must therefore
-be carefully selected. The benchmarks should use input parameters which will most likely be
-used in regular cases, as intended by the authors, but must also consider worst case
-scenarios and inputs which might decelerate or heavily impact performance of the function.
-The input parameters should be randomized in order to cause various effects in behaviors
-on certain values, such as memory relocations and other outcomes that can impact performance.
-\newline
-
-It's not possible to benchmark every single value. However, one should select a range
-of inputs to benchmark, spanning from very small values (or none, if the Runtime function
-allows it) to large values which will most likely exceed the expected usage of that function.
-As an example, considering a Runtime function which transfers balances to one or multiple
-accounts, one could select a range spanning from very small balances being sent from one to
-hundreds of accounts, to very large balances being sent from one to hundreds of accounts.
-\newline
-
-The benchmarks should run individual executions/iterations within that range, where the chosen parameters
-should give insight on an average execution time and resource cost. Selecting imprecise parameters
-or too extreme ranges might indicate an inaccurate average of the function as it will be used in production.
-Therefore, when a range of input parameters gets benchmarked, the result of each individual parameter
-should be recorded and ideally visualized. The author should then decide on the most probable average
-execution time, basing that decision on the limitations of the Runtime and expected usage of the network.
-\newline
-
-Additionally, given the distinction between theory and practice, the author reserves the right
-to make adjustments to the input parameters and assigned weights according to observed behavior
-of the actual, real-world network.
-
-\subsection{Blockchain State}
-The benchmarks should be performed on blockchain states that already polluted and contain a history of
-extrinsics and storage changes. Runtime functions that require I/O on structures
-such as Tries will therefore produce more realistic results that will reflect the real-world
-performance of the Runtime.
-
-\subsection{Environment}
-The benchmarks should be executed on clean systems without interference of other processes
-or software. Additionally, the benchmarks should be executed multiple machines with different
-system resources, such as CPU performance, CPU cores, RAM and storage speed.
-
 \section{Runtime Primitives}
 The Runtime functions must be studied in order to determine which parts of the code will excessively
 increase execution time. Potential indicators like loops, IO operations and data manipulation must
@@ -143,7 +96,7 @@ In some circumstances, preliminary work regarding
 storage is required before a specific benchmark can be reliably measured. This is described in more precise
 detail in section \ref{sect:preliminary-work}.
 
-\subsection{Primitive Types}
+\subsection{Primitive Types}\label{sect:primitive-types}
 The Runtime reuses components/primitives to interact with the state storage. The behavior and
 the execution cost of those primitives can be studied and a Weight should be applied for each use
 within the Runtime code.
@@ -232,6 +185,55 @@ Indicators for performance penalties:
   When selecting parameters for benchmarking, the benchmarks should range from small values to the maximum
   value.
 \end{itemize}
+
+\section{Benchmarking}
+Assigning weights based on theoretical performance can be
+unreliable and too complex due to imprecision in back-end systems, internal communication
+within the Runtime and design choices in the software. Therefore, all available Runtime 
+functions, which create and execute extrinsics, have to be benchmarked with a large
+collection of input parameters.
+\newline
+
+In order to select useful parameters, the Runtime functions have to be analysed in order
+to understand which behaviors or conditions can result in expensive execution times,
+as described in section \ref{sect:primitive-types}.
+
+\subsection{Parameters}
+The inputs parameters highly vary depending on the Runtime function and must therefore
+be carefully selected. The benchmarks should use input parameters which will most likely be
+used in regular cases, as intended by the authors, but must also consider worst case
+scenarios and inputs which might decelerate or heavily impact performance of the function.
+The input parameters should be randomized in order to cause various effects in behaviors
+on certain values, such as memory relocations and other outcomes that can impact performance.
+\newline
+
+It's not possible to benchmark every single value. However, one should select a range
+of inputs to benchmark, spanning from very small values (or none, if the Runtime function
+allows it) to large values which will most likely exceed the expected usage of that function.
+\newline
+
+The benchmarks should run individual executions/iterations within that range, where the chosen parameters
+should give insight on an average execution time and resource cost. Selecting imprecise parameters
+or too extreme ranges might indicate an inaccurate average of the function as it will be used in production.
+Therefore, when a range of input parameters gets benchmarked, the result of each individual parameter
+should be recorded and ideally visualized. The author should then decide on the most probable average
+execution time, basing that decision on the limitations of the Runtime and expected usage of the network.
+\newline
+
+Additionally, given the distinction theoretical and practical usage, the author reserves the right
+to make adjustments to the input parameters and assigned weights according to observed behavior
+of the actual, real-world network.
+
+\subsection{Blockchain State}
+The benchmarks should be performed on blockchain states that already polluted and contain a history of
+extrinsics and storage changes. Runtime functions that require I/O on structures
+such as Tries will therefore produce more realistic results that will reflect the real-world
+performance of the Runtime.
+
+\subsection{Environment}
+The benchmarks should be executed on clean systems without interference of other processes
+or software. Additionally, the benchmarks should be executed multiple machines with different
+system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
 \subsection{Practical examples}\label{sect:practical-examples}
 
