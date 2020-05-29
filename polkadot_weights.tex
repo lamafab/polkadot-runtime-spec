@@ -90,11 +90,11 @@ be considered. Based on those observations, Weights should be applied on operati
 that could have heavy implications on those design choices.
 \newline
 
-Section \ref{sect:practical-examples} walks through two practical examples of such analysis.
+Section \ref{sect:examples-runtime-analysis} walks through two practical examples of such analysis.
 Not every possible outcome can be caused with input parameters to the Runtime function.
 In some circumstances, preliminary work regarding
-storage is required before a specific benchmark can be reliably measured. This is described in more precise
-detail in section \ref{sect:preliminary-work}.
+storage is required before a specific benchmark can be reliably measured.
+Two of such examples are described in section \ref{sect:examples-preliminary-work}.
 
 \subsection{Primitive Types}\label{sect:primitive-types}
 The Runtime reuses components/primitives to interact with the state storage. The behavior and
@@ -236,7 +236,12 @@ The benchmarks should be executed on clean systems without interference of other
 or software. Additionally, the benchmarks should be executed on multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
-\subsection{Practical examples}\label{sect:practical-examples}
+\section{Practical examples}
+
+\subsection{Runtime function analysis}\label{sect:examples-runtime-analysis}
+
+This section walks through Runtime functions available in the Polkadot Runtime to
+demonstrate the analysis process as described in section \ref{sect:primitive-types}.
 
 \subsubsection{Practical example \#1}
 
@@ -425,7 +430,7 @@ Based on this analysis, the following notable conclusions can be drawn:
   The more there are, the higher is the IO overhead.}
 \end{itemize}
 
-\subsection{Preliminary Work}\label{sect:preliminary-work}
+\subsection{Preliminary Work}\label{sect:examples-preliminary-work}
 In order for certain benchmarks to produce conditions where resource heavy computation or excessive
 I/O can be observed, the benchmarks might require some preliminary work on the environment, since those
 conditions cannot be created with simply selected parameters.
