@@ -87,10 +87,12 @@ Do note that the smallest, non-zero weight in Polkadot is set at 10'000.
 The Runtime functions must be studied in order to determine which parts of the code will excessively
 increase execution time. Potential indicators like loops, IO operations and data manipulation must
 be considered. Based on those observations, Weights should be applied on operations
-that could have heavy implications on those design choices.
+that could have heavy implications on those design choices. The final assigned Weights are calculated
+by benchmarking the Runtime functions, which is described in section \ref{sect:benchmarking}.
 \newline
 
-Section \ref{sect:examples-runtime-analysis} walks through two practical examples of such analysis.
+Section \ref{sect:examples-runtime-analysis} walks through two practical examples of Runtime function
+analysis.
 Not every possible outcome can be caused with input parameters to the Runtime function.
 In some circumstances, preliminary work regarding
 storage is required before a specific benchmark can be reliably measured.
@@ -115,11 +117,15 @@ context:
   \newline\newline
   The final key-value pair is stored under the key:\newline
   \verb|hash(module_prefix) + hash(storage_prefix) + hash(encode(key))|.
+  \newpage
   \item \textbf{Double map}: Just like \textbf{Map}, but uses two keys instead of one 
   (child storages).
   \newline\newline
   The final key-value pair is stored under the key:\newline
-  \verb|hash(module_prefix) + hash(storage_prefix) + hash(encode(key1)) + hash(encode(key2))|.
+  \begin{verbatim}
+  hash(module_prefix) + hash(storage_prefix)
+    + hash(encode(key1)) + hash(encode(key2))
+  \end{verbatim}
 \end{itemize}
 
 Which type to use depends on the functionality of the Runtime module (or its sub-processes, rather).
@@ -190,9 +196,9 @@ functions, which create and execute extrinsics, have to be benchmarked with a la
 collection of input parameters.
 \newline
 
-In order to select useful parameters, the Runtime functions have to be analysed in order
-to understand which behaviors or conditions can result in expensive execution times,
-as described in section \ref{sect:primitive-types}.
+In order to select useful parameters, the Runtime functions have to be analysed to fully
+understand which behaviors or conditions can result in expensive execution times,
+which is described closer in section \ref{sect:primitive-types}.
 
 \subsection{Parameters}
 The inputs parameters highly vary depending on the Runtime function and must therefore
@@ -206,7 +212,7 @@ on certain values, such as memory relocations and other outcomes that can impact
 It's not possible to benchmark every single value. However, one should select a range
 of inputs to benchmark, spanning from the minimum value
 to the maximum value which will most likely exceed the expected usage of that function.
-This is described in more detail in section \ref{sect:primitive-types}.
+This is described in more detail in section \ref{sect:primitive-types-considerations}.
 \newline
 
 The benchmarks should run individual executions/iterations within that range, where the chosen parameters
@@ -301,7 +307,7 @@ Self::deposit_event(RawEvent::JudgementRequested(sender, reg_index));
 
 Based on the considerations described in section \ref{sect:primitive-types-considerations},
 the analysis reveals multiple, critical points. Those must be covered in the benchmarking
-processes described in section \ref{sect:benchmarking} and might require preliminary work as
+processes described in section \ref{sect:benchmarking} and require preliminary work as
 described in section \ref{sect:examples-preliminary-work}.
 \newline
 
@@ -406,7 +412,7 @@ for nominator in exposure.others.iter() {
 
 Based on the considerations described in section \ref{sect:primitive-types-considerations},
 the analysis reveals multiple, critical points. Those must be covered in the benchmarking
-processes described in section \ref{sect:benchmarking} and might require preliminary work as
+processes described in section \ref{sect:benchmarking} and require preliminary work as
 described in section \ref{sect:examples-preliminary-work}.
 \newline
 
