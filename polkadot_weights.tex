@@ -173,9 +173,9 @@ Indicators for performance penalties:
   for benchmarking, the benchmarks should range from the minimum value to the maximum value, as described
   in paragraph \ref{para:max-value}.
   \item \textbf{Input parameters} -
-  Input parameters that users pass on to the Runtime function can result in dangerous consequences.
+  Input parameters that users pass on to the Runtime function can result in expensive operations.
   Depending on the data type, it can be appropriate to add additional Weights based on certain properties,
-  such as data size, assuming it's expandable.
+  such as data size, assuming the data type allows varying sizes.
   The Runtime must define limits on those properties. If it doesn't, it unconditionally
   has to and the Runtime module must be adjusted.
   \newline\newline
