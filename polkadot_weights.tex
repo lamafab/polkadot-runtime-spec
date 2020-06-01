@@ -19,7 +19,7 @@
 \begin{document}
 \title{Polkadot Weights}
 \author{Web3 Foundation}
-\date{April 2020}
+\date{May 2020}
 \maketitle
 
 \section{Motivation}
@@ -83,12 +83,122 @@ for each transaction at about 1'500'000.
 
 Do note that the smallest, non-zero weight in Polkadot is set at 10'000.
 
-\section{Weight Assignment}
-Assigning weights based on theoretical performance such as big O notation proves to be
+\section{Runtime Primitives}
+The Runtime functions must be studied in order to determine which parts of the code will excessively
+increase execution time. Potential indicators like loops, IO operations and data manipulation must
+be considered. Based on those observations, Weights should be applied on operations
+that could have heavy implications on those design choices. The final assigned Weights are calculated
+by benchmarking the Runtime functions, which is described in section \ref{sect:benchmarking}.
+\newline
+
+Section \ref{sect:examples-runtime-analysis} walks through two practical examples of Runtime function
+analysis.
+Not every possible outcome can be caused with input parameters to the Runtime function.
+In some circumstances, preliminary work regarding
+storage is required before a specific benchmark can be reliably measured.
+Two of such examples are described in section \ref{sect:examples-preliminary-work}.
+
+\subsection{Primitive Types}\label{sect:primitive-types}
+The Runtime reuses components/primitives to interact with the state storage. The behavior and
+the execution cost of those primitives can be studied and a Weight should be applied for each use
+within the Runtime code.
+\newline
+
+For storage, Polkadot uses three different types of storage types across its modules, depending on the
+context:
+
+\begin{itemize}
+  \item \textbf{Value}: Operations on a single value.
+  \newline\newline
+  The final key-value pair is stored under the key:\newline
+  \verb|hash(module_prefix) + hash(storage_prefix)|.
+  \item \textbf{Map}: Operations on mulitple values, datasets, where each entry has its
+  corresponding, unique key.
+  \newline\newline
+  The final key-value pair is stored under the key:\newline
+  \verb|hash(module_prefix) + hash(storage_prefix) + hash(encode(key))|.
+  \newpage
+  \item \textbf{Double map}: Just like \textbf{Map}, but uses two keys instead of one 
+  (child storages).
+  \newline\newline
+  The final key-value pair is stored under the key:\newline
+  \begin{verbatim}
+  hash(module_prefix) + hash(storage_prefix)
+    + hash(encode(key1)) + hash(encode(key2))
+  \end{verbatim}
+\end{itemize}
+
+Which type to use depends on the functionality of the Runtime module (or its sub-processes, rather).
+In some cases only a single value is required. In others, multiple values need to be operated on.
+\newline
+
+Those lower level types get abstracted over in each individual Runtime module using the \verb|decl_storage!|
+macro. Therefore, each module specifies its own types that are used as input and output values.
+The abstractions do give indicators on what operations must be closely observed and where potential
+performance penalties and attack vectors are possible.
+
+\subsubsection{Considerations}\label{sect:primitive-types-considerations}
+
+The storage layout is mostly the same for every primitive type, primarily differentiated
+by using special prefixes for the storage key. Big differences arise on how the primitive
+types are used in the Runtime function, on whether single values are operated on or entire
+datasets. Single value operations are generally quite cheap and its execution time does
+not vary depending on the data that's being processed. However, excessive IO overhead can appear
+when IO operations are executed repeatedly, such as loops. Especially, when the amount of loop
+iterations can be influenced by the caller of the function or by certain conditions in the
+state storage.
+\newline
+
+Maps, in contrast, have additional overhead when inserting or retrieving
+datasets, which vary in sizes. Additionally, the Runtime function has to process each item inside
+that list.
+\newline
+
+Indicators for performance penalties:
+
+\begin{itemize}
+  \item \textbf{Fixed iterations and datasets} -
+  Fixed iterations and datasets can increase the overall cost of the Runtime functions,
+  but the execution time
+  does not vary depending on the input parameters or storage entries.
+  A base Weight is appropriate in this case.
+  \item \textbf{Adjustable iterations and datasets} -
+  If the amount of iterations or datasets depend on the input parameters of the caller or
+  specific entries in storage,
+  then a certain Weight should be applied for each (additional) iteration or item.
+  The Runtime defines the maximum value for such cases. If it doesn't, it unconditionally has to
+  and the Runtime module must be adjusted.
+  \newline\newline
+  When selecting parameters
+  for benchmarking, the benchmarks should range from the minimum value to the maximum value, as described
+  in paragraph \ref{para:max-value}.
+  \item \textbf{Input parameters} -
+  Input parameters that users pass on to the Runtime function can result in expensive operations.
+  Depending on the data type, it can be appropriate to add additional Weights based on certain properties,
+  such as data size, assuming the data type allows varying sizes.
+  The Runtime must define limits on those properties. If it doesn't, it unconditionally
+  has to and the Runtime module must be adjusted.
+  \newline\newline
+  When selecting parameters for benchmarking, the benchmarks should range from the minimum values to the
+  maximum value, as described in paragraph \ref{para:max-value}.
+\end{itemize}
+
+\label{para:max-value} What the maximum value should be really depends on the functionality that the Runtime function
+is trying to provide. If the choice for that value is not obvious, then it's advised to run
+benchmarks on a big range of values and pick a conservative value below the \verb|targeted time per block|
+limit as described in section \ref{sec:limitations}.
+
+\section{Benchmarking}\label{sect:benchmarking}
+Assigning weights based on theoretical performance can be
 unreliable and too complex due to imprecision in back-end systems, internal communication
 within the Runtime and design choices in the software. Therefore, all available Runtime 
 functions, which create and execute extrinsics, have to be benchmarked with a large
 collection of input parameters.
+\newline
+
+In order to select useful parameters, the Runtime functions have to be analysed to fully
+understand which behaviors or conditions can result in expensive execution times,
+which is described closer in section \ref{sect:primitive-types}.
 
 \subsection{Parameters}
 The inputs parameters highly vary depending on the Runtime function and must therefore
@@ -100,22 +210,20 @@ on certain values, such as memory relocations and other outcomes that can impact
 \newline
 
 It's not possible to benchmark every single value. However, one should select a range
-of inputs to benchmark, spanning from very small values (or none, if the Runtime function
-allows it) to large values which will most likely exceed the expected usage of that function.
-As an example, considering a Runtime function which transfers balances to one or multiple
-accounts, one could select a range spanning from very small balances being sent from one to
-hundreds of accounts, to very large balances being sent from one to hundreds of accounts.
+of inputs to benchmark, spanning from the minimum value
+to the maximum value which will most likely exceed the expected usage of that function.
+This is described in more detail in section \ref{sect:primitive-types-considerations}.
 \newline
 
 The benchmarks should run individual executions/iterations within that range, where the chosen parameters
-should give insight on an average execution time and resource cost. Selecting imprecise parameters
-or too extreme ranges might indicate an inaccurate average of the function as it will be used in production.
+should give insight on the execution time and resource cost. Selecting imprecise parameters
+or too extreme ranges might indicate an inaccurate result of the function as it will be used in production.
 Therefore, when a range of input parameters gets benchmarked, the result of each individual parameter
 should be recorded and ideally visualized. The author should then decide on the most probable average
 execution time, basing that decision on the limitations of the Runtime and expected usage of the network.
 \newline
 
-Additionally, given the distinction between theory and practice, the author reserves the right
+Additionally, given the distinction theoretical and practical usage, the author reserves the right
 to make adjustments to the input parameters and assigned weights according to observed behavior
 of the actual, real-world network.
 
@@ -127,19 +235,15 @@ performance of the Runtime.
 
 \subsection{Environment}
 The benchmarks should be executed on clean systems without interference of other processes
-or software. Additionally, the benchmarks should be executed multiple machines with different
+or software. Additionally, the benchmarks should be executed on multiple machines with different
 system resources, such as CPU performance, CPU cores, RAM and storage speed.
 
-\subsection{Runtime Analysis}
-The Runtime functions must be studied in order to determine which parts of the code will excessively
-increase execution time. Potential indicators like loops, IO operations and data manipulation must
-be considered. Based on those observations, one should then select parameters that could have heavy
-implications on those design decisions.
-\newline
+\section{Practical examples}
 
-Not every possible outcome can be caused with parameters. In some circumstances, preliminary work
-is required before a specific benchmark can be reliably measured. This is described in more precise
-detail in section \ref{sect:preliminary-work}.
+\subsection{Runtime function analysis}\label{sect:examples-runtime-analysis}
+
+This section walks through Runtime functions available in the Polkadot Runtime to
+demonstrate the analysis process as described in section \ref{sect:primitive-types}.
 
 \subsubsection{Practical example \#1}
 
@@ -178,7 +282,6 @@ those entries for the specified registrar index. If an entry can be found, the v
 this update implies that the Identity Info should be rejudged. If the entry cannot 
 be found, the value is inserted into the index where a matching element could be inserted while maintaining
 sorted order. This results in memory reallocation.
-\newpage
 
 \begin{verbatim}
 match id.judgements.binary_search_by_key(&reg_index, |x| x.0) {
@@ -202,29 +305,24 @@ Self::deposit_event(RawEvent::JudgementRequested(sender, reg_index));
 
 \subsubsection*{Considerations}
 
-Based on this analysis, the following notable conclusions can be drawn:
+Based on the considerations described in section \ref{sect:primitive-types-considerations},
+the analysis reveals multiple, critical points. Those must be covered in the benchmarking
+processes described in section \ref{sect:benchmarking} and require preliminary work as
+described in section \ref{sect:examples-preliminary-work}.
+\newline
 
+Key points:
 \begin{itemize}
-  \item The list of registrars varies. Fetching and searching through it can impact execution time.
-  Given that only one operation is required to fetch the account, no matter the input, a too excessive
-  deviation is not to be expected.
-  \SubItem{The benchmarks should be executed with different list sizes, from only a few to many
-  \newline registrars.}
-  \item The specified sender of the transaction is fetched from storage. Depending on the total accounts
-  available in the storage, the execution time can vary. Given that only one operation is required to fetch
-  the account, no matter the input, a too excessive deviation is not to be expected.
-  \SubItem{The benchmarks should be executed with a different amount of preexisting accounts in\newline storage.}
+  \item Varying amount of registrars.
+  \item Varying amount of preexisting accounts in storage.
   \item The specified registrar is searched for in the Identity Info. Additionally, if a new value gets
   inserted into the byte array, memory get reallocated. Depending on the size of the Identity Info, the
   execution time can vary.
-  \SubItem{The benchmarks should be executed with different sizes of the Identity Info, including
-  additional fields.}
-  \SubItem{The benchmarks should request judgement from registrars that are already inserted in the Identity
-  Info including newly introduced ones, in order to trigger memory reallocation.}
-  \SubItem{It is legitimate to introduce additional Weights for changes the sender has influence over,
-  such the additional fields in the Identity Info.}
+  \item Varying sizes of Identity Info, including additional fields.
+  \item Inserting new registrars into Identity Info results in memory reallocation.
+  \item It is legitimate to introduce additional Weights for changes the sender has influence over,
+  such the additional fields in the Identity Info.
 \end{itemize}
-\newpage
 
 \subsubsection{Practical example \#2}
 
@@ -291,7 +389,6 @@ if let Some(imbalance) = Self::make_payout(
   Self::deposit_event(RawEvent::Reward(ledger.stash, imbalance.peek()));
 }
 \end{verbatim}
-\newpage
 
 Then, the nominators receive a payout. The functions loops through the nominator list, conducting
 a insertion into storage and a creation of a deposit event for each of the nominators.
@@ -313,22 +410,24 @@ for nominator in exposure.others.iter() {
 
 \subsubsection*{Considerations}
 
-Based on this analysis, the following notable conclusions can be drawn:
+Based on the considerations described in section \ref{sect:primitive-types-considerations},
+the analysis reveals multiple, critical points. Those must be covered in the benchmarking
+processes described in section \ref{sect:benchmarking} and require preliminary work as
+described in section \ref{sect:examples-preliminary-work}.
+\newline
+
+Key points:
 
 \begin{itemize}
-  \item The Ledger contains a list of claimed rewards. Fetching, retaining and searching through it can affect execution
+  \item The Ledger contains a varying list of claimed rewards. Fetching, retaining and searching through it can affect execution
   time. The retained list is inserted back into storage.
-  \SubItem{The benchmarks should be executed with different list sizes, from only a few to many claimed rewards.}
   \item The function searches the database for the reward points of the specified validator. If there are a lot of validators
   in the network, the search becomes more expensive.
-  \SubItem{The benchmarks should be executed with different amounts of active validators.}
   \item Looping through a list of nominators and creating IO operations for each heavily increases execution time.
   The Runtime fetches up to 64 nominators.
-  \SubItem{The benchmarks should be exeucted with different amounts of nominators that back an individual validator.
-  The more there are, the higher is the IO overhead.}
 \end{itemize}
 
-\subsection{Preliminary Work}\label{sect:preliminary-work}
+\subsection{Preliminary Work}\label{sect:examples-preliminary-work}
 In order for certain benchmarks to produce conditions where resource heavy computation or excessive
 I/O can be observed, the benchmarks might require some preliminary work on the environment, since those
 conditions cannot be created with simply selected parameters.
@@ -378,7 +477,6 @@ for more detail):
 The parameters itself do not influence or trigger the two worst conditions and must be handled by
 the implemented benchmarking tool. The $transfer$ benchmark is implemented as defined in algorithm
 \ref{sec:algo-benchmark-transfer}.
-\newpage
 
 \subsubsection*{Implementation}
 The benchmarking implementation for the Polkadot Runtime function $transfer$ is defined as
@@ -434,7 +532,6 @@ follows (starting with the \textsc{Main} function):
       \SubItem{Measures the time from the start of the specified $function$ to its completion.}
 \end{itemize}
 
-\newpage
 \subsubsection{Practical example \#2}
 The $withdraw\_unbonded$ function of the \textit{staking} module is designed to move any unlocked
 funds from the staking management system to be ready for transfer. The benchmark requires a couple
